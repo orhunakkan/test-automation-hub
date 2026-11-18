@@ -51,6 +51,14 @@ The tests use two test users, an admin and a member. Their credentials are never
 - `.env` is gitignored everywhere and is never copied into a Docker image.
 - In CI, supply the same variables as secrets; the Docker setup passes them into the container.
 
+## Continuous integration
+
+Each framework has one GitHub Actions workflow: [Selenium](.github/workflows/selenium.yml), [Playwright](.github/workflows/playwright.yml) and [Cypress](.github/workflows/cypress.yml). Each runs the framework's Docker suite, once per browser, on the maintainer's self-hosted runner. That's the same command as a local Docker run.
+
+- A workflow runs on pushes to `main` that change its framework, or when started by hand from the Actions tab.
+- Workflows never run on pull requests, because the runner is the maintainer's own machine.
+- When a run fails, its report is attached to the run for 7 days.
+
 ## Working with AI agents
 
 Each framework has an `AGENTS.md` with instructions for coding agents: the stack and versions, how to run tests, credential rules and links to the tool's documentation. The root [AGENTS.md](AGENTS.md) holds the rules that apply to the whole repository.
@@ -67,6 +75,7 @@ Start your agent session **inside a framework folder**, not at the repository ro
 
 ```
 test-automation-hub/
+├── .github/workflows/                # CI, one workflow per framework
 ├── AGENTS.md                         # rules for AI agents, whole repository
 ├── CAPABILITIES.md                   # what each tool can test
 ├── LICENSE                           # MIT

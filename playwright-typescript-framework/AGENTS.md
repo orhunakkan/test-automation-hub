@@ -48,6 +48,10 @@ Before you finish a change, run `typecheck`, `lint`, `format:check` and the test
   - The container runs as your host user (`HOST_UID`/`HOST_GID`, default `1000`).
   - Never run `docker compose config`: Compose reads `.env` and prints the credentials.
 
+## CI
+
+`.github/workflows/playwright.yml` (at the repository root) runs the Docker suite on the self-hosted runner, once with `--project=chromium` and once with `--project=firefox`, on pushes to `main` that change this folder. `CI=true` is passed into the container, so the config's CI settings apply. A failed run attaches `playwright-report/` and `test-results/`.
+
 ## Layout
 
 ```

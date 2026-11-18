@@ -1,0 +1,46 @@
+# Runs the Selenium suite in its Docker image on the owner's self-hosted runner, named by the repository variable CI_RUNNER.
+# It runs on pushes to main that change this framework, and by hand from the Actions tab. It never runs on pull
+# requests: this repository is public, and a pull request's code must never run on the owner's machine.
+name: Selenium
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - selenium-java-framework/**
+      - .github/workflows/selenium.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: ${{ matrix.browser }}
+    runs-on: ${{ vars.CI_RUNNER }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox]
+    defaults:
+      run:
+        working-directory: selenium-java-framework
+    env:
+      # Test users, from the repository's Actions secrets. compose.yaml passes them into the container.
+      ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+      MEMBER_USERNAME: ${{ secrets.MEMBER_USERNAME }}
+      MEMBER_PASSWORD: ${{ secrets.MEMBER_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v7
+      # The container runs as the runner's user, so the next checkout can clean up the files it writes.
+      - name: Run the suite in Docker
+        run: HOST_UID=$(id -u) HOST_GID=$(id -g) docker compose run --rm --build tests -DbrowserName=${{ matrix.browser }}
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: surefire-reports-${{ matrix.browser }}
+          path: |
+            selenium-java-framework/target/surefire-reports/
+          retention-days: 7

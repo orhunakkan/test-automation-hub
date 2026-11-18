@@ -35,6 +35,10 @@ Before you finish a change, run `./mvnw spotless:apply` and the tests you touche
   - The container runs as your host user (`HOST_UID`/`HOST_GID`, default `1000`).
   - Never run `docker compose config`: Compose reads `.env` and prints the credentials.
 
+## CI
+
+`.github/workflows/selenium.yml` (at the repository root) runs the Docker suite on the self-hosted runner, once with `-DbrowserName=chromium` and once with `-DbrowserName=firefox`, on pushes to `main` that change this folder. A failed run attaches `target/surefire-reports/`.
+
 ## Layout
 
 ```

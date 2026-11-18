@@ -7,6 +7,7 @@ services:
     environment:
       HOME: /tmp
       # Passed through from the host when set (CI); otherwise the mounted .env is used.
+      CI:
       BASE_URL:
       ADMIN_USERNAME:
       ADMIN_PASSWORD:
