@@ -122,7 +122,7 @@ Unit and component tests aren't listed: they belong in the app's own repository,
 | | Multiple tabs, windows and origins | ✅ | Links open in new tabs on the book page, the private book page and the lookup card. Paddle's sandbox checkout is another origin. Sync across devices needs two browser contexts |
 | | Mobile | ✅ | Responsive layout, installable as a web app |
 | | Time and clock control | ✅ | Flashcards come due on a schedule, there's a sleep timer, and private offline downloads expire after 30 days. Session and reset-link expiry are decided on the server, so a fake browser clock can't move them |
-| | Passkeys / WebAuthn | ✅ | Add a passkey on `/account` with the current password, sign in with it from `/login`, and remove it. A password reset removes every passkey. Dev only for now, not yet on production |
+| | Passkeys / WebAuthn | ✅ | Add a passkey on `/account` with the current password, sign in with it from `/login`, and remove it. A password reset removes every passkey |
 | **Non-functional** | Visual regression | ✅ | Every passing push to the app's `main` redeploys dev, so expect to update baselines often |
 | | Accessibility | ✅ | The app's own suite already runs an axe scan on every screen |
 | | Performance | ✅ | Page load and web vitals can be measured on dev. It runs on one server behind a Cloudflare tunnel, so results vary |
