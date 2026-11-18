@@ -1,9 +1,5 @@
-# Same image for local full-suite runs and CI: Java 25, Google Chrome, Firefox and the
-# Maven dependencies. Chrome and Firefox are the latest stable versions at build time.
 FROM eclipse-temurin:25-jdk-noble
 
-# Ubuntu's Firefox package is a snap, which doesn't work in containers, so both browsers
-# come from their vendors' apt repositories.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends ca-certificates curl gnupg \
  && install -d -m 0755 /etc/apt/keyrings \
@@ -16,8 +12,6 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends google-chrome-stable firefox \
  && rm -rf /var/lib/apt/lists/*
 
-# Keep Maven and its dependencies outside HOME so the container can run as any user.
-# Docker blocks the namespaces Chrome's sandbox needs; see DriverFactory.
 ENV NO_SANDBOX=true \
     MAVEN_USER_HOME=/opt/m2 \
     MAVEN_ARGS="-B -Dmaven.repo.local=/opt/m2/repository"

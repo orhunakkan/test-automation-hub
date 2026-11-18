@@ -1,9 +1,7 @@
-# Repository-wide ignores. Each framework has its own .gitignore as well.
 .env
 .DS_Store
 .idea/
 .vscode/
 
-# Personal Claude Code files, in any folder
 **/.claude/settings.local.json
 CLAUDE.local.md

@@ -7,10 +7,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-/**
- * Reads settings from system properties, then environment variables, then .env, then
- * config.properties.
- */
 public final class Config {
 
   private static final Properties DEFAULTS = loadDefaults();

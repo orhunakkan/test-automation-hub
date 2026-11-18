@@ -6,7 +6,6 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 
-/** Creates a WebDriver for the configured browser. Selenium Manager resolves drivers. */
 public final class DriverFactory {
 
   private DriverFactory() {}
@@ -14,7 +13,6 @@ public final class DriverFactory {
   public static WebDriver create() {
     String browser = Config.get("browserName");
     boolean headless = Boolean.parseBoolean(Config.get("headless"));
-    // Only for containers, where Docker blocks the namespaces Chrome's sandbox needs.
     boolean noSandbox = Boolean.parseBoolean(Config.get("noSandbox"));
     return switch (browser) {
       case "chromium" -> {

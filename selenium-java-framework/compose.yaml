@@ -2,11 +2,9 @@ services:
   tests:
     build: .
     image: selenium-java-framework:local
-    # Run as your host user so build output written to this folder belongs to you.
     user: '${HOST_UID:-1000}:${HOST_GID:-1000}'
     environment:
       HOME: /tmp
-      # Passed through from the host when set (CI); otherwise the mounted .env is used.
       BASE_URL:
       ADMIN_USERNAME:
       ADMIN_PASSWORD:
@@ -14,5 +12,4 @@ services:
       MEMBER_PASSWORD:
     shm_size: 2gb
     volumes:
-      # This folder is mounted, so test edits need no rebuild and reports land here.
       - .:/app
