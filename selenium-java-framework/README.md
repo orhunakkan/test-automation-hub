@@ -22,7 +22,7 @@ cp .env.example .env   # then fill in the test users
 ```sh
 ./mvnw test                                   # all tests, headless Chromium
 ./mvnw test -Dtest=SmokeTest                  # one class
-./mvnw test -Dbrowser=firefox                 # Firefox
+./mvnw test -DbrowserName=firefox             # Firefox
 ./mvnw test -Dheadless=false                  # show the browser
 ```
 
@@ -33,8 +33,8 @@ Results are in `target/surefire-reports/`.
 Full-suite runs, locally and in CI, use the same Docker image, built from `Dockerfile`: Java 25, Google Chrome, Firefox and the Maven dependencies. Only Docker is needed; no local Java or browsers.
 
 ```sh
-docker compose run --rm --build tests                     # all tests, headless Chromium
-docker compose run --rm --build tests -Dbrowser=firefox   # arguments go to Maven
+docker compose run --rm --build tests                         # all tests, headless Chromium
+docker compose run --rm --build tests -DbrowserName=firefox   # arguments go to Maven
 ```
 
 The folder is mounted into the container, so results land in `target/surefire-reports/` as usual. The container runs as user id 1000; if yours differs, set `HOST_UID=$(id -u) HOST_GID=$(id -g)`. Use native runs for `-Dheadless=false` and agent work.
@@ -46,7 +46,7 @@ Defaults are in `src/test/resources/config.properties`. Override any setting wit
 | Setting | Environment variable | Default |
 |---|---|---|
 | `baseUrl` | `BASE_URL` | `https://dev.agenticlibrary.app` |
-| `browser` | `BROWSER` | `chromium` (or `firefox`) |
+| `browserName` | `BROWSER_NAME` | `chromium` (or `firefox`) |
 | `headless` | `HEADLESS` | `true` |
 | `noSandbox` | `NO_SANDBOX` | `false`; the Docker image sets `true` |
 | `adminUsername`, `adminPassword` | `ADMIN_USERNAME`, `ADMIN_PASSWORD` | none |

@@ -18,7 +18,7 @@ Run from this folder.
 | All tests | `./mvnw test` |
 | One test class | `./mvnw test -Dtest=SmokeTest` |
 | One test method | `./mvnw test -Dtest=SmokeTest#homePageLoads` |
-| Run in Firefox | `./mvnw test -Dbrowser=firefox` |
+| Run in Firefox | `./mvnw test -DbrowserName=firefox` |
 | Show the browser | `./mvnw test -Dheadless=false` |
 | Format code | `./mvnw spotless:apply` |
 | Check formatting | `./mvnw spotless:check` |
@@ -28,7 +28,7 @@ Before you finish a change, run `./mvnw spotless:apply` and the tests you touche
 ## Native and Docker runs
 
 - **Native** (the commands above): for interactive and agent work, such as running with `-Dheadless=false`.
-- **Docker**: for full-suite runs, locally and in CI, using the same image. `docker compose run --rm --build tests` runs `./mvnw test`; arguments after `tests` go to Maven, for example `docker compose run --rm --build tests -Dbrowser=firefox`.
+- **Docker**: for full-suite runs, locally and in CI, using the same image. `docker compose run --rm --build tests` runs `./mvnw test`; arguments after `tests` go to Maven, for example `docker compose run --rm --build tests -DbrowserName=firefox`.
   - The image is built from `Dockerfile` on `eclipse-temurin:25-jdk-noble`, with Google Chrome and Firefox from their vendors' apt repositories and the Maven dependencies included. Browser versions are the latest stable at build time.
   - The image sets `NO_SANDBOX=true`, which adds `--no-sandbox` for Chromium, because Docker blocks the namespaces Chrome's sandbox needs. Never turn on `noSandbox` outside containers.
   - `compose.yaml` mounts this folder into the container, so test edits need no rebuild and reports land in `target/` as usual. Rebuild after changing `pom.xml` (`--build` does that).
@@ -50,11 +50,12 @@ src/test/resources/config.properties   # default settings
 
 `Config.get(key)` looks a key up in this order: system property (`-DbaseUrl=...`), environment variable in upper snake case (`BASE_URL`), `.env` in this folder, then `config.properties`.
 
-Settings: `baseUrl`, `browser` (`chromium` or `firefox`), `headless`, `noSandbox` (containers only), `adminUsername`, `adminPassword`, `memberUsername`, `memberPassword`.
+Settings: `baseUrl`, `browserName` (`chromium` or `firefox`), `headless`, `noSandbox` (containers only), `adminUsername`, `adminPassword`, `memberUsername`, `memberPassword`.
 
 - Credentials live only in `.env`, which is gitignored. `.env.example` lists the keys with empty values.
 - Never hardcode, log, print or commit credentials, and never copy them into test names, assertions, reports or screenshots.
 - Don't open or print `.env`. Read values through `Config`.
+- Every setting can be overridden by an environment variable of the same name in upper snake case, so never name a setting after a common variable such as `BROWSER`, `HOME`, `PATH` or `DISPLAY`. Desktops set `BROWSER`, which is why the browser setting is `browserName`.
 
 ## Browsers
 

@@ -12,7 +12,7 @@ public final class DriverFactory {
   private DriverFactory() {}
 
   public static WebDriver create() {
-    String browser = Config.get("browser");
+    String browser = Config.get("browserName");
     boolean headless = Boolean.parseBoolean(Config.get("headless"));
     // Only for containers, where Docker blocks the namespaces Chrome's sandbox needs.
     boolean noSandbox = Boolean.parseBoolean(Config.get("noSandbox"));
