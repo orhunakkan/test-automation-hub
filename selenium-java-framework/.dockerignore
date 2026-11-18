@@ -1,0 +1,4 @@
+# Never copy secrets or local output into the image.
+.env
+target/
+.claude/

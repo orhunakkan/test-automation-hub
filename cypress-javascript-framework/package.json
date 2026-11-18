@@ -1,0 +1,25 @@
+{
+  "name": "cypress-javascript-framework",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cypress and JavaScript test automation framework for Folio",
+  "type": "module",
+  "scripts": {
+    "test": "cypress run --browser chromium",
+    "test:firefox": "cypress run --browser firefox",
+    "open": "cypress open --e2e --browser chromium",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "cypress": "16.3.0",
+    "eslint": "10.15.0",
+    "eslint-plugin-cypress": "7.0.5",
+    "globals": "17.14.0",
+    "prettier": "3.10.1"
+  },
+  "allowScripts": {
+    "cypress@16.3.0": true
+  }
+}

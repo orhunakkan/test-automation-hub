@@ -1,0 +1,7 @@
+# Never copy secrets or local output into the image.
+.env
+node_modules/
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+.claude/

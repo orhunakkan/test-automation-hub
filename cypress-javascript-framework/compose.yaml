@@ -1,0 +1,20 @@
+services:
+  tests:
+    build: .
+    image: cypress-javascript-framework:local
+    # Run as your host user so screenshots and videos written to this folder belong to you.
+    user: '${HOST_UID:-1000}:${HOST_GID:-1000}'
+    environment:
+      HOME: /tmp
+      # Passed through from the host when set (CI); otherwise the mounted .env is used.
+      BASE_URL:
+      ADMIN_USERNAME:
+      ADMIN_PASSWORD:
+      MEMBER_USERNAME:
+      MEMBER_PASSWORD:
+    shm_size: 2gb
+    volumes:
+      # This folder is mounted, so spec edits need no rebuild and output lands here.
+      # node_modules always comes from the image.
+      - .:/app
+      - /app/node_modules
