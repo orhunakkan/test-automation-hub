@@ -103,3 +103,53 @@ Test types none of the tools covers fully with built-in features. These need a s
 | **Non-functional** | Accessibility | ⚠️ Cypress `cy.getByRole()` and Playwright ARIA snapshots; no WCAG audits |
 | **Non-functional** | Performance | ⚠️ Selenium's Chromium-only (CDP) metrics and Playwright's tracing; no real performance testing |
 | **Non-functional** | Load testing | ❌ None of the three |
+
+## Testing Folio
+
+Which test types the app under test, Folio on `https://dev.agenticlibrary.app`, gives something to test, whatever the tool. Checked on 18 November 2026 against the app's source.
+
+Unit and component tests aren't listed: they belong in the app's own repository, next to its source.
+
+✅ doable · ❌ not doable yet
+
+| Pyramid layer | Test type | Doable? | Why |
+|---|---|---|---|
+| **Integration / API** | HTTP API tests | ✅ | There are many JSON endpoints (highlights, bookmarks, shelves, sync, lookup, flashcards, export, `/healthz`). Every POST must send an `Origin` header matching the site, or it gets a 403 |
+| | Contract / schema validation | ✅ | There's no OpenAPI spec, so the schemas are written by hand. Base them on the documented JSON routes, not the internal TanStack server-function calls |
+| | Network stubbing and mocking | ✅ | The app's own same-origin endpoints can be stubbed, such as Ask's streamed answers or word lookup. Anthropic, ElevenLabs and Open Library can't be, because the server calls them |
+| **UI / E2E** | Browser end-to-end flows | ✅ | Library, reader, player, import, highlights, accounts, admin |
+| | Cross-browser coverage | ✅ | Adds real value: the app's own suite is Chromium-only, and Safari is only checked by hand on an iPhone |
+| | Multiple tabs, windows and origins | ✅ | Links open in new tabs on the book page, the private book page and the lookup card. Paddle's sandbox checkout is another origin. Sync across devices needs two browser contexts |
+| | Mobile | ✅ | Responsive layout, installable as a web app |
+| | Time and clock control | ✅ | Flashcards come due on a schedule, there's a sleep timer, and private offline downloads expire after 30 days. Session and reset-link expiry are decided on the server, so a fake browser clock can't move them |
+| | Passkeys / WebAuthn | ❌ | The app has no passkeys yet |
+| **Non-functional** | Visual regression | ✅ | Every passing push to the app's `main` redeploys dev, so expect to update baselines often |
+| | Accessibility | ✅ | The app's own suite already runs an axe scan on every screen |
+| | Performance | ✅ | Page load and web vitals can be measured on dev. It runs on one server behind a Cloudflare tunnel, so results vary |
+| | Load testing | ✅ | Within the limits in [Load testing on dev](#load-testing-on-dev) |
+| **Infrastructure** | Runner, parallel runs, debugging artefacts, AI-agent tooling | ✅ | These depend on the tool, not the app. For parallel runs, give each worker its own account, so per-account limits don't collide |
+
+Two things affect most rows:
+
+- **Test accounts:** the app has no test API for making a fresh user per test, and sign-up on dev can only email 30 links a day. Use a few accounts made in advance, kept in the repository's Actions secrets.
+- **Free plan limits:** a Free account can import 2 books and keep 50 highlights. Ask, translation, Markdown export, audiobook uploads, ElevenLabs voices and flashcards need Pro, so at least one test account should be Pro, which an admin can grant.
+
+### Load testing on dev
+
+This assumes production has no real users. Dev and production run on the same server, so while production is in use, load on dev reaches its users too.
+
+What stays risky:
+
+- **CI shares the machine.** The app's CI runs on a self-hosted runner on the server that hosts the site. If this repository's `CI_RUNNER` points at it too, a load test can slow or break CI runs and dev deploys.
+- **Cloudflare is in front.** Dev is reached through a Cloudflare tunnel, which may throttle or challenge a burst of traffic from one IP. The server's own upload bandwidth can become the limit before the app does, which measures the network, not Folio.
+- **One database server.** Dev and production have separate databases but share a PostgreSQL instance and its disk. A test that writes a lot, such as imports or highlights, fills that shared disk.
+- **Mail quota.** Dev and production share 100 emails a day, and sign-up links are capped at 30 a day. Don't load sign-up, forgot-password or email confirmation.
+- **The app's own limits.** All the load comes from one IP, so sign-in blocks it after 30 failures in 15 minutes, and many account actions have hourly limits, such as 10 exports an hour. Hitting them measures 429 errors, not capacity.
+
+How to run it:
+
+1. Load read-only public pages: home, library, book pages, reader pages and covers. The Open Graph images under `/og/` are CPU-heavy, so they make a good stress point.
+2. Sign in a few accounts once and reuse their session cookies, instead of signing in under load.
+3. Run the load generator from a different machine than the server.
+4. Ramp up gradually, and stop at the first errors or Cloudflare challenges.
+5. Pick a time when no CI run or deploy is happening.
