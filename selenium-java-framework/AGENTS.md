@@ -6,6 +6,7 @@ Instructions for AI coding agents working in `selenium-java-framework/`. Humans 
 
 - Selenium 4.53.0 (Java bindings), Java 25, Maven through the wrapper (`./mvnw`)
 - JUnit Jupiter 6.1.3 (via `junit-bom`), AssertJ 3.27.7
+- REST Assured 6.3.0, for the HTTP API tests
 - Spotless 3.11.0 with google-java-format
 - Checkstyle 14.4.0 (maven-checkstyle-plugin 3.6.0), for the locator rule only
 - Application under test: Folio at `https://dev.agenticlibrary.app`
@@ -48,6 +49,7 @@ src/test/java/com/testautomationhub/selenium/
 ├── support/   # Config (settings lookup), DriverFactory (creates the WebDriver), BrowserTest (base class: a fresh driver per test), SignIn (API sign-in)
 ├── pages/     # page objects
 └── tests/
+    ├── api/   # HTTP API tests, with REST Assured and no browser
     └── e2e/   # browser end-to-end tests
 src/test/resources/config.properties   # default settings
 ```
