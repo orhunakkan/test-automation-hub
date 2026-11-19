@@ -28,7 +28,7 @@ Folio renders on the server and then hydrates. When hydration finishes it sets `
 |---|---|---|---|
 | E2E-01 | Library loads | Open `/library` | The "Library" heading is visible |
 | E2E-02 | Each user signs in | For the member and the admin: open `/login`, enter the user's username and password, submit | Lands on `/library`, and the account menu shows instead of "Sign in" |
-| E2E-03 | Wrong password is refused | Open `/login`, enter `e2e-no-such-user` and any password, submit | Stays on the sign-in page with "Username or password is incorrect" |
+| E2E-03 | Wrong password is refused | Open `/login`, enter `e2e-no-such-user` and any password, submit | The error reads "Username or password is incorrect." |
 | E2E-04 | Each user signs out | For the member and the admin: start signed in with the sign-in helper, open the account menu, choose Sign out | "Sign in" shows again |
 | E2E-05 | Library opens a book | Open `/library`, select *Pride and Prejudice* | The book page opens with the book's title and "Start reading" |
 | E2E-06 | Start reading | On the book page, select "Start reading" | The reader opens at chapter 1, and the bottom bar reads "Chapter 1 · Page 1 of …" |
