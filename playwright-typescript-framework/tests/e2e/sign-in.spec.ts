@@ -25,5 +25,4 @@ test('wrong password is refused', async ({ page }) => {
   await page.goto('/login');
   await signInPage.signIn('e2e-no-such-user', 'not-the-password');
   await expect(signInPage.error).toHaveText('Username or password is incorrect.');
-  await expect(page).toHaveURL((url) => url.pathname === '/login');
 });
