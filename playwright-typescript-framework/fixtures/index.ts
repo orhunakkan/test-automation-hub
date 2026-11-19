@@ -26,8 +26,9 @@ export const test = base.extend<Fixtures>({
         headers: { Origin: new URL(baseURL!).origin },
         maxRedirects: 0,
       });
-      if (response.headers()['location'] !== '/library') {
-        throw new Error(`Sign-in failed: POST /login returned ${response.status()}, redirecting to ${response.headers()['location']}`);
+      const location = response.headers()['location'];
+      if (location !== '/library') {
+        throw new Error(`Sign-in failed: POST /login returned ${response.status()}, redirecting to ${location}`);
       }
     });
   },
