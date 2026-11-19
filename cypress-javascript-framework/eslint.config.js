@@ -7,4 +7,10 @@ export default [
   },
   { languageOptions: { globals: globals.node } },
   pluginCypress.configs.recommended,
+  {
+    rules: {
+      'cypress/require-data-selectors': 'error',
+      'cypress/no-xpath': 'error',
+    },
+  },
 ];

@@ -53,6 +53,15 @@ cypress/
 cypress.config.js
 ```
 
+## Locators
+
+Follow Cypress's [selector best practices](https://docs.cypress.io/app/core-concepts/best-practices#Selecting-Elements), mixed:
+
+- Use `cy.contains` when the visible text is what the test checks, narrowed by a tag name when the text appears more than once, such as `cy.contains('h1', 'Library')`.
+- Otherwise use `cy.get('[data-cy=…]')`. When the element has no `data-cy` yet, add it to Folio's source.
+- `cy.get` with anything but a `data-*` selector is a lint error (`cypress/require-data-selectors`), and so is XPath (`cypress/no-xpath`).
+- Page objects hold locators and actions; assertions belong in the specs.
+
 ## Configuration and credentials
 
 `cypress.config.js` loads `.env` from this folder when it exists. `BASE_URL` sets `baseUrl` (default `https://dev.agenticlibrary.app`). The credentials go into the config's `env` block: `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `MEMBER_USERNAME`, `MEMBER_PASSWORD`.
