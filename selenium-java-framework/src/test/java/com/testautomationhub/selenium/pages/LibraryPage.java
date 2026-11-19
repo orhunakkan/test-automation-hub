@@ -7,6 +7,7 @@ import org.openqa.selenium.WebElement;
 public class LibraryPage {
 
   private static final By HEADING = By.tagName("h1");
+  private static final By ACCOUNT_MENU = By.cssSelector("[data-testid=account-menu]");
 
   private final WebDriver driver;
 
@@ -16,5 +17,13 @@ public class LibraryPage {
 
   public WebElement heading() {
     return driver.findElement(HEADING);
+  }
+
+  // The account menu renders twice, in the sidebar and in the phone-width top bar; only one shows.
+  public WebElement accountMenu() {
+    return driver.findElements(ACCOUNT_MENU).stream()
+        .filter(WebElement::isDisplayed)
+        .findFirst()
+        .orElseThrow();
   }
 }
