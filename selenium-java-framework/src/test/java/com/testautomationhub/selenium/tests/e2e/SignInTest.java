@@ -6,6 +6,7 @@ import com.testautomationhub.selenium.pages.LibraryPage;
 import com.testautomationhub.selenium.pages.SignInPage;
 import com.testautomationhub.selenium.support.BrowserTest;
 import com.testautomationhub.selenium.support.Config;
+import java.net.URI;
 import java.time.Duration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,5 +37,16 @@ class SignInTest extends BrowserTest {
     new WebDriverWait(driver, Duration.ofSeconds(10))
         .until(ExpectedConditions.urlToBe(Config.get("baseUrl") + "/library"));
     assertThat(libraryPage.accountMenu().isDisplayed()).isTrue();
+  }
+
+  @Test
+  @DisplayName("wrong password is refused")
+  void wrongPasswordIsRefused() {
+    SignInPage signInPage = new SignInPage(driver);
+    driver.get(Config.get("baseUrl") + "/login");
+    signInPage.signIn("e2e-no-such-user", "not-the-password");
+    new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> signInPage.error().isDisplayed());
+    assertThat(signInPage.error().getText()).isEqualTo("Username or password is incorrect.");
+    assertThat(URI.create(driver.getCurrentUrl()).getPath()).isEqualTo("/login");
   }
 }
