@@ -14,7 +14,7 @@ The row counts as done when every scenario below passes in all three frameworks,
 ## Test data
 
 - **Book:** the catalogue has one book, *Pride and Prejudice*: its page is `/library/jane-austen/pride-and-prejudice`.
-- **Accounts:** the member account from `MEMBER_USERNAME` and `MEMBER_PASSWORD`, already in each framework's `.env` and the repository's Actions secrets.
+- **Accounts:** two users, the member (`MEMBER_USERNAME`, `MEMBER_PASSWORD`) and the admin (`ADMIN_USERNAME`, `ADMIN_PASSWORD`), already in each framework's `.env` and the repository's Actions secrets. Both land on `/library` after signing in. The sign-in scenarios run once for each user, with titles such as `member signs in` and `admin signs in`.
 - **Wrong-password tests** use a username that doesn't exist, such as `e2e-no-such-user`. Five failures lock a username for 15 minutes, so a real account must never be used for them.
 - **Signed out by default.** A signed-in reader sees their own copy of *Pride and Prejudice* in place of the catalogue's, so the reading scenarios run signed out.
 
@@ -27,9 +27,9 @@ Folio renders on the server and then hydrates. When hydration finishes it sets `
 | ID | Scenario | Steps | Expected |
 |---|---|---|---|
 | E2E-01 | Library loads | Open `/library` | The "Library" heading is visible |
-| E2E-02 | Member signs in | Open `/login`, enter the member's username and password, submit | Lands on `/library`, and the account menu shows instead of "Sign in" |
+| E2E-02 | Each user signs in | For the member and the admin: open `/login`, enter the user's username and password, submit | Lands on `/library`, and the account menu shows instead of "Sign in" |
 | E2E-03 | Wrong password is refused | Open `/login`, enter `e2e-no-such-user` and any password, submit | Stays on the sign-in page with "Username or password is incorrect" |
-| E2E-04 | Member signs out | Sign in, open the account menu, choose Sign out | "Sign in" shows again |
+| E2E-04 | Each user signs out | For the member and the admin: start signed in with the sign-in helper, open the account menu, choose Sign out | "Sign in" shows again |
 | E2E-05 | Library opens a book | Open `/library`, select *Pride and Prejudice* | The book page opens with the book's title and "Start reading" |
 | E2E-06 | Start reading | On the book page, select "Start reading" | The reader opens at chapter 1, and the bottom bar reads "Chapter 1 · Page 1 of …" |
 | E2E-07 | Turn a page | In the reader, select next | The bottom bar's page number goes up by one |
@@ -42,7 +42,10 @@ The labels and status codes in this plan were checked on dev on 18 November 2026
 
 - **Selectors:** use what each tool's official documentation recommends, which starts with what a user sees: roles, labels and text. No raw CSS or XPath selectors. Folio has no `data-testid` attributes yet; when nothing a user sees identifies an element, add the attribute the tool recommends to Folio's source rather than fall back to a raw selector.
 - **Page objects** go in each framework's `pages/` folder, one class per page.
-- **Sign-in helper:** Playwright as a fixture in `fixtures/index.ts`, Cypress as a custom command in `cypress/support/commands.js` (with `cy.session` to reuse the session), Selenium as a method on the sign-in page object.
+- **Sign-in helper:** each framework signs in the way its official documentation recommends, so tests that only need a signed-in user don't go through the sign-in form. It signs in each user, the member and the admin, and keeps a separate session for each. E2E-02 is the one test that signs in through the form, because the form is what it tests. Tests stay signed out unless they opt in.
+  - **Playwright:** a `setup` project signs each user in once and saves their session with `storageState` to `playwright/.auth/member.json` and `playwright/.auth/admin.json`. Tests that need one opt in with `test.use({ storageState })` ([Authentication](https://playwright.dev/docs/auth), "Multiple signed in roles").
+  - **Cypress:** a custom command in `cypress/support/commands.js` that takes the user and wraps the sign-in in `cy.session`, with one session per user, so each is reused between tests.
+  - **Selenium:** chosen from Selenium's documentation when its phase starts.
 
 ## Phases
 
@@ -54,12 +57,12 @@ The labels and status codes in this plan were checked on dev on 18 November 2026
 | 4 | Sign-in page object, and E2E-02 | Playwright | No |
 | 5 | Sign-in page object, and E2E-02 | Cypress | No |
 | 6 | Sign-in page object, and E2E-02 | Selenium | No |
-| 7 | E2E-03 | Playwright | No |
-| 8 | E2E-03 | Cypress | No |
-| 9 | E2E-03 | Selenium | No |
-| 10 | Sign-in helper, and E2E-04 using it | Playwright | No |
-| 11 | Sign-in helper, and E2E-04 using it | Cypress | No |
-| 12 | Sign-in helper, and E2E-04 using it | Selenium | No |
+| 7 | Sign-in helper, and E2E-04 using it | Playwright | No |
+| 8 | Sign-in helper, and E2E-04 using it | Cypress | No |
+| 9 | Sign-in helper, and E2E-04 using it | Selenium | No |
+| 10 | E2E-03 | Playwright | No |
+| 11 | E2E-03 | Cypress | No |
+| 12 | E2E-03 | Selenium | No |
 | 13 | Book page object, and E2E-05 | Playwright | No |
 | 14 | Book page object, and E2E-05 | Cypress | No |
 | 15 | Book page object, and E2E-05 | Selenium | No |
