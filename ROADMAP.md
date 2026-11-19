@@ -14,7 +14,7 @@ Start here. Every tool has what it needs, or needs one standard library.
 
 | Order | Test type | Selenium | Cypress | Playwright | Why now | Done |
 |---|---|---|---|---|---|---|
-| 1 | Browser end-to-end flows | ✅ | ✅ | ✅ | The base for everything else. The page objects and sign-in helpers written here are reused by most later rows | No |
+| 1 | Browser end-to-end flows | ✅ | ✅ | ✅ | The base for everything else. The page objects and sign-in helpers written here are reused by most later rows | Yes |
 | 2 | Cross-browser coverage | ✅ | ✅ | ✅ | Already in place: CI runs every framework in Chromium and Firefox, so each new test gets it for free | Yes |
 | 3 | Mobile (responsive layout) | ✅ Window size or Chrome emulation | ✅ `cy.viewport` | ✅ Device emulation | Rerun the end-to-end flows at phone sizes. Real devices aren't needed for layout checks | No |
 | 4 | HTTP API tests | 📦 REST Assured | ✅ `cy.request` | ✅ `request` fixture | Fast, stable tests. Selenium needs one dependency. Every POST must send a matching `Origin` header | No |

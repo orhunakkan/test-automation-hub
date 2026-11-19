@@ -72,4 +72,4 @@ The labels and status codes in this plan were checked on dev on 18 November 2026
 | 19 | E2E-08 and E2E-09 | Playwright | Yes |
 | 20 | E2E-08 and E2E-09 | Cypress | Yes |
 | 21 | E2E-08 and E2E-09 | Selenium | Yes |
-| 22 | Mark row 1 Done in ROADMAP.md | Repository | No |
+| 22 | Mark row 1 Done in ROADMAP.md | Repository | Yes |
