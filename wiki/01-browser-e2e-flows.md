@@ -54,7 +54,7 @@ The labels and status codes in this plan were checked on dev on 18 November 2026
 | 1 | Library page object, and E2E-01 using it | Playwright | Yes |
 | 2 | Library page object, and E2E-01 using it | Cypress | Yes |
 | 3 | Library page object, and E2E-01 using it | Selenium | Yes |
-| 4 | Sign-in page object, and E2E-02 | Playwright | No |
+| 4 | Sign-in page object, and E2E-02 | Playwright | Yes |
 | 5 | Sign-in page object, and E2E-02 | Cypress | No |
 | 6 | Sign-in page object, and E2E-02 | Selenium | No |
 | 7 | Sign-in helper, and E2E-04 using it | Playwright | No |
