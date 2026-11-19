@@ -23,4 +23,12 @@ describe('sign in', () => {
     cy.location('pathname').should('eq', '/library');
     libraryPage.accountMenu().should('be.visible');
   });
+
+  it('wrong password is refused', () => {
+    const signInPage = new SignInPage();
+    cy.visit('/login');
+    signInPage.signIn('e2e-no-such-user', 'not-the-password');
+    signInPage.error().should('have.text', 'Username or password is incorrect.');
+    cy.location('pathname').should('eq', '/login');
+  });
 });

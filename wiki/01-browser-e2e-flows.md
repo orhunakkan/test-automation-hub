@@ -61,7 +61,7 @@ The labels and status codes in this plan were checked on dev on 18 November 2026
 | 8 | Sign-in helper, and E2E-04 using it | Cypress | Yes |
 | 9 | Sign-in helper, and E2E-04 using it | Selenium | Yes |
 | 10 | E2E-03 | Playwright | Yes |
-| 11 | E2E-03 | Cypress | No |
+| 11 | E2E-03 | Cypress | Yes |
 | 12 | E2E-03 | Selenium | No |
 | 13 | Book page object, and E2E-05 | Playwright | No |
 | 14 | Book page object, and E2E-05 | Cypress | No |
