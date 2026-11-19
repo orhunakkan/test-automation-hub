@@ -1,6 +1,6 @@
 export class LibraryPage {
   heading() {
-    return cy.getByRole('heading', { name: 'Library' });
+    return cy.get('[data-testid=library-title]');
   }
 
   accountMenu() {

@@ -6,7 +6,7 @@ import org.openqa.selenium.WebElement;
 
 public class LibraryPage {
 
-  private static final By HEADING = By.tagName("h1");
+  private static final By HEADING = By.cssSelector("[data-testid=library-title]");
   private static final By ACCOUNT_MENU = By.cssSelector("[data-testid=account-menu]");
 
   private final WebDriver driver;

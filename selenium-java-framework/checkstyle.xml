@@ -9,22 +9,10 @@
 
   <module name="TreeWalker">
     <module name="RegexpSinglelineJava">
-      <property name="id" value="noXPath"/>
-      <property name="format" value="By\.xpath\("/>
+      <property name="id" value="testIdLocatorsOnly"/>
+      <property name="format" value="\bBy\.(?!cssSelector\(&quot;\[data-testid=)"/>
       <property name="ignoreComments" value="true"/>
-      <property name="message" value="No XPath. Use By.id, By.name, By.tagName, By.linkText or a data-* CSS selector."/>
-    </module>
-    <module name="RegexpSinglelineJava">
-      <property name="id" value="noClassName"/>
-      <property name="format" value="By\.className\("/>
-      <property name="ignoreComments" value="true"/>
-      <property name="message" value="No class-name locators. Use By.id, By.name, By.tagName, By.linkText or a data-* CSS selector."/>
-    </module>
-    <module name="RegexpSinglelineJava">
-      <property name="id" value="cssDataAttributesOnly"/>
-      <property name="format" value="By\.cssSelector\((?!&quot;\[data-)"/>
-      <property name="ignoreComments" value="true"/>
-      <property name="message" value="By.cssSelector takes only a data-* attribute selector written in place, such as &quot;[data-cy=sign-in]&quot;."/>
+      <property name="message" value="Locate elements by data-testid, written in place: By.cssSelector(&quot;[data-testid=…]&quot;)."/>
     </module>
   </module>
 </module>

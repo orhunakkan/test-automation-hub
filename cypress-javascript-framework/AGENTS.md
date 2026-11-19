@@ -55,12 +55,12 @@ cypress.config.js
 
 ## Locators
 
-Follow Cypress's [selector best practices](https://docs.cypress.io/app/core-concepts/best-practices#Selecting-Elements), mixed:
+Locate every element with `cy.get('[data-testid=…]')`. Cypress's [selector best practices](https://docs.cypress.io/app/core-concepts/best-practices#Selecting-Elements) rate data attributes "Always", above `cy.contains` and `cy.getByRole` ("Depends"), and Folio gives every element a test touches a `data-testid` (see its `docs/conventions.md`, "Test ids"):
 
-- Use [`cy.getByRole`](https://on.cypress.io/getbyrole) with the element's accessible name when it has a role, such as `cy.getByRole('button', { name: 'Sign in' })`. A string name must match the whole name. Some elements have no role, such as a password input or a `<summary>`.
-- Use `cy.contains` when the visible text is what the test checks and no role fits.
-- Otherwise use `cy.get('[data-testid=…]')`. Folio's test attribute is `data-testid`, shared with the Playwright and Selenium frameworks. When the element has none yet, add it to Folio's source.
-- `cy.get` with anything but a `data-*` selector is a lint error (`cypress/require-data-selectors`), and so is XPath (`cypress/no-xpath`).
+- Repeated items share one id and carry their key in `data-key`: `cy.get('[data-testid=book-card][data-key=pride-and-prejudice]')`.
+- A component Folio renders twice, such as `account-menu` in the sidebar and the phone-width top bar, keeps one id; add `.filter(':visible')`.
+- Check text in the spec with an assertion, such as `.should('have.text', 'Library')`, not in the locator.
+- Lint enforces it: `cy.get` takes only a `data-testid` selector or an `@alias`, and `cy.contains`, `cy.getByRole` and XPath are errors.
 - Page objects hold locators and actions; assertions belong in the specs.
 
 ## Configuration and credentials

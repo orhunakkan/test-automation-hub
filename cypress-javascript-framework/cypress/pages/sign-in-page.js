@@ -1,6 +1,6 @@
 export class SignInPage {
   username() {
-    return cy.getByRole('textbox', { name: 'Username' });
+    return cy.get('[data-testid=username]');
   }
 
   password() {
@@ -8,7 +8,7 @@ export class SignInPage {
   }
 
   submit() {
-    return cy.getByRole('button', { name: 'Sign in' });
+    return cy.get('[data-testid=sign-in]');
   }
 
   signIn(username, password) {

@@ -7,7 +7,7 @@ Instructions for AI coding agents working in `selenium-java-framework/`. Humans 
 - Selenium 4.53.0 (Java bindings), Java 25, Maven through the wrapper (`./mvnw`)
 - JUnit Jupiter 6.1.3 (via `junit-bom`), AssertJ 3.27.7
 - Spotless 3.11.0 with google-java-format
-- Checkstyle 14.4.0 (maven-checkstyle-plugin 3.6.0), for locator rules only
+- Checkstyle 14.4.0 (maven-checkstyle-plugin 3.6.0), for the locator rule only
 - Application under test: Folio at `https://dev.agenticlibrary.app`
 
 ## Commands
@@ -88,8 +88,8 @@ Adapted from Selenium's own guidance for AI agents.
 - Headless is an argument (`--headless=new` for Chromium, `-headless` for Firefox). `setHeadless` was removed.
 - Timeouts and waits take a `java.time.Duration`.
 - Never use `Thread.sleep`. Use an explicit wait for the condition the next line depends on. Don't mix implicit and explicit waits. When a test is flaky, find the condition that wasn't true yet instead of raising timeouts.
-- Locate with `driver.findElement(By...)`; the `findElementBy*` helpers were removed. Use `By.id`, `By.name`, `By.tagName` or `By.linkText`, and `By.cssSelector` only for a `data-*` attribute written in place. When nothing else identifies an element, add a `data-*` attribute to Folio's source. Declare locators separately from actions.
-- Checkstyle enforces the locator rule: `By.xpath`, `By.className` and `By.cssSelector` with anything but a `data-*` selector fail the build. Rules are in `checkstyle.xml`, and the check runs in Maven's `validate` phase, so `./mvnw test` and CI run it too.
+- Locate with `driver.findElement(By...)`; the `findElementBy*` helpers were removed. Locate every element by its `data-testid`, as CSS on a stable attribute: `By.cssSelector("[data-testid=sign-in]")`. Folio gives every element a test touches one (see its `docs/conventions.md`, "Test ids"). Repeated items carry their key in `data-key` (`[data-testid=book-card][data-key=pride-and-prejudice]`), and a component Folio renders twice keeps one id, so pick the displayed one. Declare locators separately from actions.
+- Checkstyle enforces it: any `By` locator other than `By.cssSelector("[data-testid=…]")`, written in place, fails the build. The rule is in `checkstyle.xml`, and the check runs in Maven's `validate` phase, so `./mvnw test` and CI run it too.
 - Page objects hold locators and actions; assertions belong in the tests.
 - One fresh driver per test. End it with `quit()` in teardown, not `close()`. Don't share drivers between tests.
 - For console logs, JavaScript errors and network interception, use WebDriver BiDi, not CDP.

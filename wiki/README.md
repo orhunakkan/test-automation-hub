@@ -8,6 +8,7 @@ The plans for building this repository's tests: one plan per row of [ROADMAP.md]
 - **Playwright first.** Each step of a plan is built in Playwright, then Cypress, then Selenium. Playwright's agent tooling is the quickest way to prove a scenario works on dev.
 - **Same scenario, same name.** Every scenario has an ID, such as `E2E-03`, for referring to it in plans and phases. The test's title is the scenario's name, such as `wrong password is refused`, the same in all three frameworks, so results can be compared side by side. The ID isn't part of the title.
 - **Done.** When a phase is committed, its row in the plan's Phases table is marked Yes. When the last phase of a plan is committed, the row in ROADMAP.md is marked Done, in a phase of its own.
+- **Locators.** Folio gives every element a test touches a `data-testid`, documented in its `docs/conventions.md` ("Test ids"), so plans and phases never need an app change to locate an element. If one is ever missing, that's a gap in Folio's convention: report it.
 - **App bugs.** A test that finds a bug in Folio is reported with evidence, never weakened or skipped to hide it.
 
 ## What a plan contains
