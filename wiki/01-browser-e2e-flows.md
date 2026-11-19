@@ -63,7 +63,7 @@ The labels and status codes in this plan were checked on dev on 18 November 2026
 | 10 | E2E-03 | Playwright | Yes |
 | 11 | E2E-03 | Cypress | Yes |
 | 12 | E2E-03 | Selenium | Yes |
-| 13 | Book page object, and E2E-05 | Playwright | No |
+| 13 | Book page object, and E2E-05 | Playwright | Yes |
 | 14 | Book page object, and E2E-05 | Cypress | No |
 | 15 | Book page object, and E2E-05 | Selenium | No |
 | 16 | Reader page object, and E2E-06 and E2E-07 | Playwright | No |
