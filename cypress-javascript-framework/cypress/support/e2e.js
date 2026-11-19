@@ -9,3 +9,7 @@ Cypress.on('uncaught:exception', (err) => {
     return false;
   }
 });
+
+Cypress.on('window:before:load', (win) => {
+  delete Object.getPrototypeOf(win.navigator).serviceWorker;
+});

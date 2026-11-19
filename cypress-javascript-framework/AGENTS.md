@@ -94,6 +94,14 @@ Cypress injects a script into every page it loads. Folio renders the whole docum
 - Don't widen that handler, and don't add other `uncaught:exception` handlers that ignore errors, without asking.
 - Known Cypress issue: https://github.com/cypress-io/cypress/issues/27204
 
+## Blocked service worker
+
+Folio registers an offline service worker (`public/sw.js` in its repository). Cypress keeps one browser open across tests and its cleanup between them doesn't remove service workers, so the worker one test registers handles the next test's page loads. Under Cypress those loads fail: the worker answers with Folio's offline page, or the page never fires its `load` event. Playwright and Selenium start every test in a fresh browser, so they never meet this.
+
+`cypress/support/e2e.js` therefore removes `navigator.serviceWorker` before every page loads, and Folio skips registering its worker when the browser has none. Cypress tests Folio without offline support; test offline features in Playwright or Selenium.
+
+- Don't remove this handler without checking the full suite in both browsers, several runs in a row.
+
 ## Cypress documentation
 
 - Start here: https://docs.cypress.io/llms.txt
