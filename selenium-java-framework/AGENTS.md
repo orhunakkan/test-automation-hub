@@ -7,6 +7,7 @@ Instructions for AI coding agents working in `selenium-java-framework/`. Humans 
 - Selenium 4.53.0 (Java bindings), Java 25, Maven through the wrapper (`./mvnw`)
 - JUnit Jupiter 6.1.3 (via `junit-bom`), AssertJ 3.27.7
 - Spotless 3.11.0 with google-java-format
+- Checkstyle 14.4.0 (maven-checkstyle-plugin 3.6.0), for locator rules only
 - Application under test: Folio at `https://dev.agenticlibrary.app`
 
 ## Commands
@@ -22,6 +23,7 @@ Run from this folder.
 | Show the browser | `./mvnw test -Dheadless=false` |
 | Format code | `./mvnw spotless:apply` |
 | Check formatting | `./mvnw spotless:check` |
+| Check locators | `./mvnw checkstyle:check` |
 
 Before you finish a change, run `./mvnw spotless:apply` and the tests you touched.
 
@@ -86,7 +88,9 @@ Adapted from Selenium's own guidance for AI agents.
 - Headless is an argument (`--headless=new` for Chromium, `-headless` for Firefox). `setHeadless` was removed.
 - Timeouts and waits take a `java.time.Duration`.
 - Never use `Thread.sleep`. Use an explicit wait for the condition the next line depends on. Don't mix implicit and explicit waits. When a test is flaky, find the condition that wasn't true yet instead of raising timeouts.
-- Locate with `driver.findElement(By...)`; the `findElementBy*` helpers were removed. Prefer id and name, then CSS on a stable attribute. No absolute XPath or generated class names. Declare locators separately from actions.
+- Locate with `driver.findElement(By...)`; the `findElementBy*` helpers were removed. Use `By.id`, `By.name`, `By.tagName` or `By.linkText`, and `By.cssSelector` only for a `data-*` attribute written in place. When nothing else identifies an element, add a `data-*` attribute to Folio's source. Declare locators separately from actions.
+- Checkstyle enforces the locator rule: `By.xpath`, `By.className` and `By.cssSelector` with anything but a `data-*` selector fail the build. Rules are in `checkstyle.xml`, and the check runs in Maven's `validate` phase, so `./mvnw test` and CI run it too.
+- Page objects hold locators and actions; assertions belong in the tests.
 - One fresh driver per test. End it with `quit()` in teardown, not `close()`. Don't share drivers between tests.
 - For console logs, JavaScript errors and network interception, use WebDriver BiDi, not CDP.
 

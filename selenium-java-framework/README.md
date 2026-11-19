@@ -61,11 +61,12 @@ src/test/java/com/testautomationhub/selenium/
 └── tests/e2e/ # end-to-end tests
 ```
 
-## Formatting
+## Formatting and locator checks
 
 ```sh
-./mvnw spotless:apply   # format
-./mvnw spotless:check   # verify
+./mvnw spotless:apply     # format
+./mvnw spotless:check     # verify formatting
+./mvnw checkstyle:check   # verify locators (also runs with ./mvnw test)
 ```
 
 ## Working with AI agents

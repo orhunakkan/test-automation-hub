@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+    "https://checkstyle.org/dtds/configuration_1_3.dtd">
+
+<!-- Locator rules only. Formatting is Spotless's job. -->
+<module name="Checker">
+  <property name="severity" value="error"/>
+
+  <module name="TreeWalker">
+    <module name="RegexpSinglelineJava">
+      <property name="id" value="noXPath"/>
+      <property name="format" value="By\.xpath\("/>
+      <property name="ignoreComments" value="true"/>
+      <property name="message" value="No XPath. Use By.id, By.name, By.tagName, By.linkText or a data-* CSS selector."/>
+    </module>
+    <module name="RegexpSinglelineJava">
+      <property name="id" value="noClassName"/>
+      <property name="format" value="By\.className\("/>
+      <property name="ignoreComments" value="true"/>
+      <property name="message" value="No class-name locators. Use By.id, By.name, By.tagName, By.linkText or a data-* CSS selector."/>
+    </module>
+    <module name="RegexpSinglelineJava">
+      <property name="id" value="cssDataAttributesOnly"/>
+      <property name="format" value="By\.cssSelector\((?!&quot;\[data-)"/>
+      <property name="ignoreComments" value="true"/>
+      <property name="message" value="By.cssSelector takes only a data-* attribute selector written in place, such as &quot;[data-cy=sign-in]&quot;."/>
+    </module>
+  </module>
+</module>
