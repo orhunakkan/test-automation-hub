@@ -44,6 +44,7 @@ In a VS Code terminal, Cypress fails to start with `bad option: --no-sandbox` be
 ```
 cypress/
 ├── e2e/
+│   ├── api/         # HTTP API specs (*.cy.js)
 │   └── ui/          # browser end-to-end specs (*.cy.js)
 ├── fixtures/        # static test data
 ├── pages/           # page objects
