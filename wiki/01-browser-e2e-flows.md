@@ -70,6 +70,6 @@ The labels and status codes in this plan were checked on dev on 18 November 2026
 | 17 | Reader page object, and E2E-06 and E2E-07 | Cypress | Yes |
 | 18 | Reader page object, and E2E-06 and E2E-07 | Selenium | Yes |
 | 19 | E2E-08 and E2E-09 | Playwright | Yes |
-| 20 | E2E-08 and E2E-09 | Cypress | No |
+| 20 | E2E-08 and E2E-09 | Cypress | Yes |
 | 21 | E2E-08 and E2E-09 | Selenium | No |
 | 22 | Mark row 1 Done in ROADMAP.md | Repository | No |

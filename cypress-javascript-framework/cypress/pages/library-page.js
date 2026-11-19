@@ -1,6 +1,27 @@
 export class LibraryPage {
+  open() {
+    cy.visit('/library');
+    cy.document().its('documentElement.dataset.hydrated');
+  }
+
   heading() {
     return cy.get('[data-testid=library-title]');
+  }
+
+  searchBox() {
+    return cy.get('[data-testid=library-search]');
+  }
+
+  count() {
+    return cy.get('[data-testid=library-count]');
+  }
+
+  books() {
+    return cy.get('[data-testid=book-card]');
+  }
+
+  search(query) {
+    this.searchBox().type(query);
   }
 
   book(slug) {
