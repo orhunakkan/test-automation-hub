@@ -9,6 +9,7 @@ import com.testautomationhub.selenium.support.Config;
 import java.time.Duration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 class LibraryTest extends BrowserTest {
@@ -31,5 +32,29 @@ class LibraryTest extends BrowserTest {
     new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> bookPage.title().isDisplayed());
     assertThat(bookPage.title().getText()).isEqualTo("Pride and Prejudice");
     assertThat(bookPage.startReading().getText()).isEqualTo("Start reading");
+  }
+
+  @Test
+  @DisplayName("search finds a book")
+  void searchFindsABook() {
+    LibraryPage libraryPage = new LibraryPage(driver);
+    libraryPage.open();
+    libraryPage.search("pride");
+    new WebDriverWait(driver, Duration.ofSeconds(10))
+        .until(ExpectedConditions.urlContains("q=pride"));
+    assertThat(libraryPage.searchBox().getDomProperty("value")).isEqualTo("pride");
+    assertThat(libraryPage.book("pride-and-prejudice").isDisplayed()).isTrue();
+    assertThat(libraryPage.count().getText()).isEqualTo("Showing 1 book");
+  }
+
+  @Test
+  @DisplayName("search with no match")
+  void searchWithNoMatch() {
+    LibraryPage libraryPage = new LibraryPage(driver);
+    libraryPage.open();
+    libraryPage.search("zyxwvq");
+    new WebDriverWait(driver, Duration.ofSeconds(10)).until(d -> libraryPage.books().isEmpty());
+    assertThat(libraryPage.searchBox().getDomProperty("value")).isEqualTo("zyxwvq");
+    assertThat(libraryPage.count().getText()).isEqualTo("Showing 0 books");
   }
 }
