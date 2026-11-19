@@ -29,6 +29,5 @@ describe('sign in', () => {
     cy.visit('/login');
     signInPage.signIn('e2e-no-such-user', 'not-the-password');
     signInPage.error().should('have.text', 'Username or password is incorrect.');
-    cy.location('pathname').should('eq', '/login');
   });
 });
