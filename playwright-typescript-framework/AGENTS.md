@@ -55,9 +55,10 @@ Before you finish a change, run `typecheck`, `lint`, `format:check` and the test
 ## Layout
 
 ```
-fixtures/index.ts    # exports `test` and `expect`; extend fixtures here
+fixtures/index.ts    # exports `test`, `expect`, the `member` and `admin` users and the `signIn` fixture
 pages/               # page objects
 tests/
+├── auth.setup.ts    # the `setup` project: saves each user's signed-in session
 ├── seed.spec.ts     # seed test used by the Playwright planner agent
 └── e2e/             # browser end-to-end tests
 specs/               # Markdown test plans written by the planner agent
@@ -68,6 +69,15 @@ playwright.config.ts
 - Page objects hold locators and actions; assertions belong in the tests.
 - Import `test` and `expect` from `fixtures/index.js`, not from `@playwright/test`. The `.js` extension is required because the project uses `NodeNext` module resolution.
 - `tests/seed.spec.ts` has no assertions on purpose, so the `playwright/expect-expect` lint warning on it is expected.
+
+## Signing in
+
+Follows Playwright's [Authentication](https://playwright.dev/docs/auth) guide. Tests start signed out.
+
+- **Saved sessions:** the `setup` project (`tests/auth.setup.ts`) runs before `chromium` and `firefox`. It signs the member and the admin in once each and saves their sessions to `playwright/.auth/member.json` and `admin.json`. A test that only needs to be signed in opts in with `test.use({ storageState: member.authFile })`.
+- **`signIn(user)` fixture:** signs a user in with a `POST /login` request, not the form, into the test's own browser context. It sends the `Origin` header Folio requires, and throws if Folio doesn't redirect to `/library`.
+- **Tests that end the session**, such as signing out or changing the password, call `signIn` for a session of their own. Folio deletes the session on sign-out, so a saved session would stop working for every other test in the run.
+- Only the sign-in tests (`tests/e2e/sign-in.spec.ts`) go through the form, because the form is what they test.
 
 ## Configuration and credentials
 

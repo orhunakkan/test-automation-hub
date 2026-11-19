@@ -43,7 +43,7 @@ The labels and status codes in this plan were checked on dev on 18 November 2026
 - **Selectors:** each framework follows its own documentation. Folio gives every element a test touches a `data-testid` (see its `docs/conventions.md`, "Test ids"), so no scenario needs an app change to be located. Playwright locates by role, label and text first, with `getByTestId` last. Cypress and Selenium locate everything by `data-testid`. No raw CSS or XPath selectors; each framework's lint or Checkstyle enforces its rule.
 - **Page objects** go in each framework's `pages/` folder, one class per page.
 - **Sign-in helper:** each framework signs in the way its official documentation recommends, so tests that only need a signed-in user don't go through the sign-in form. It signs in each user, the member and the admin, and keeps a separate session for each. E2E-02 is the one test that signs in through the form, because the form is what it tests. Tests stay signed out unless they opt in.
-  - **Playwright:** a `setup` project signs each user in once and saves their session with `storageState` to `playwright/.auth/member.json` and `playwright/.auth/admin.json`. Tests that need one opt in with `test.use({ storageState })` ([Authentication](https://playwright.dev/docs/auth), "Multiple signed in roles").
+  - **Playwright:** a `setup` project signs each user in once and saves their session with `storageState` to `playwright/.auth/member.json` and `playwright/.auth/admin.json`. Tests that need one opt in with `test.use({ storageState })` ([Authentication](https://playwright.dev/docs/auth), "Multiple signed in roles"). The setup signs in with a `POST /login` request, not the form, through a `signIn` fixture. Folio deletes the session on sign-out, so a test that ends its session, such as E2E-04, calls `signIn` for a session of its own instead of loading a saved one.
   - **Cypress:** a custom command in `cypress/support/commands.js` that takes the user and wraps the sign-in in `cy.session`, with one session per user, so each is reused between tests.
   - **Selenium:** chosen from Selenium's documentation when its phase starts.
 
@@ -57,7 +57,7 @@ The labels and status codes in this plan were checked on dev on 18 November 2026
 | 4 | Sign-in page object, and E2E-02 | Playwright | Yes |
 | 5 | Sign-in page object, and E2E-02 | Cypress | Yes |
 | 6 | Sign-in page object, and E2E-02 | Selenium | Yes |
-| 7 | Sign-in helper, and E2E-04 using it | Playwright | No |
+| 7 | Sign-in helper, and E2E-04 using it | Playwright | Yes |
 | 8 | Sign-in helper, and E2E-04 using it | Cypress | No |
 | 9 | Sign-in helper, and E2E-04 using it | Selenium | No |
 | 10 | E2E-03 | Playwright | No |

@@ -7,5 +7,6 @@ export default defineConfig(globalIgnores(['node_modules/', 'playwright-report/'
   extends: [playwright.configs['flat/recommended']],
   rules: {
     'playwright/no-raw-locators': 'error',
+    'playwright/expect-expect': ['warn', { assertFunctionNames: ['signIn'] }],
   },
 });
