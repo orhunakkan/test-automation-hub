@@ -45,7 +45,7 @@ Before you finish a change, run `./mvnw spotless:apply` and the tests you touche
 
 ```
 src/test/java/com/testautomationhub/selenium/
-├── support/   # Config (settings lookup), DriverFactory (creates the WebDriver), SignIn (API sign-in)
+├── support/   # Config (settings lookup), DriverFactory (creates the WebDriver), BrowserTest (base class: a fresh driver per test), SignIn (API sign-in)
 ├── pages/     # page objects
 └── tests/
     └── e2e/   # browser end-to-end tests

@@ -4,30 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.testautomationhub.selenium.pages.LibraryPage;
 import com.testautomationhub.selenium.pages.SignInPage;
+import com.testautomationhub.selenium.support.BrowserTest;
 import com.testautomationhub.selenium.support.Config;
-import com.testautomationhub.selenium.support.DriverFactory;
 import java.time.Duration;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-class SignInTest {
-
-  private WebDriver driver;
-
-  @BeforeEach
-  void startDriver() {
-    driver = DriverFactory.create();
-  }
-
-  @AfterEach
-  void quitDriver() {
-    if (driver != null) driver.quit();
-  }
+class SignInTest extends BrowserTest {
 
   @Test
   @DisplayName("member signs in")
