@@ -4,11 +4,13 @@ export class SignInPage {
   readonly username: Locator;
   readonly password: Locator;
   readonly submit: Locator;
+  readonly error: Locator;
 
   constructor(page: Page) {
     this.username = page.getByRole('textbox', { name: 'Username' });
     this.password = page.getByRole('textbox', { name: 'Password' });
     this.submit = page.getByRole('button', { name: 'Sign in', exact: true });
+    this.error = page.getByRole('alert');
   }
 
   async signIn(username: string, password: string) {
