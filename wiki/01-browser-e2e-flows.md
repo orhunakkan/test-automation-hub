@@ -33,8 +33,8 @@ Folio renders on the server and then hydrates. When hydration finishes it sets `
 | E2E-05 | Library opens a book | Open `/library`, select *Pride and Prejudice* | The book page opens with the book's title and "Start reading" |
 | E2E-06 | Start reading | On the book page, select "Start reading" | The reader opens at chapter 1, and the bottom bar reads "Chapter 1 · Page 1 of …" |
 | E2E-07 | Turn a page | In the reader, select next | The bottom bar's page number goes up by one |
-| E2E-08 | Search finds a book | On `/library`, search for "pride" | *Pride and Prejudice* is shown, and the count reads "Showing 1 book" |
-| E2E-09 | Search with no match | On `/library`, search for a word no title has | No book is shown, and the count reads "Showing 0 books" |
+| E2E-08 | Search finds a book | On `/library`, search for "pride" | The search box holds "pride", *Pride and Prejudice* is shown, and the count reads "Showing 1 book" |
+| E2E-09 | Search with no match | On `/library`, search for a word no title has | The search box holds the word, no book is shown, and the count reads "Showing 0 books" |
 
 The labels and status codes in this plan were checked on dev on 18 November 2026. The reader's page label only appears after hydration.
 
@@ -69,7 +69,7 @@ The labels and status codes in this plan were checked on dev on 18 November 2026
 | 16 | Reader page object, and E2E-06 and E2E-07 | Playwright | Yes |
 | 17 | Reader page object, and E2E-06 and E2E-07 | Cypress | Yes |
 | 18 | Reader page object, and E2E-06 and E2E-07 | Selenium | Yes |
-| 19 | E2E-08 and E2E-09 | Playwright | No |
+| 19 | E2E-08 and E2E-09 | Playwright | Yes |
 | 20 | E2E-08 and E2E-09 | Cypress | No |
 | 21 | E2E-08 and E2E-09 | Selenium | No |
 | 22 | Mark row 1 Done in ROADMAP.md | Repository | No |
