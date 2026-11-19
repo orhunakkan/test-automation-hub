@@ -40,7 +40,7 @@ The labels and status codes in this plan were checked on dev on 18 November 2026
 
 ## Framework notes
 
-- **Selectors:** prefer what a user sees: roles, labels and text. Folio has no `data-testid` attributes, and this repository doesn't change the app to add them.
+- **Selectors:** use what each tool's official documentation recommends, which starts with what a user sees: roles, labels and text. No raw CSS or XPath selectors. Folio has no `data-testid` attributes yet; when nothing a user sees identifies an element, add the attribute the tool recommends to Folio's source rather than fall back to a raw selector.
 - **Page objects** go in each framework's `pages/` folder, one class per page.
 - **Sign-in helper:** Playwright as a fixture in `fixtures/index.ts`, Cypress as a custom command in `cypress/support/commands.js` (with `cy.session` to reuse the session), Selenium as a method on the sign-in page object.
 

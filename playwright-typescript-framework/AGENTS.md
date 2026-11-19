@@ -64,6 +64,8 @@ specs/               # Markdown test plans written by the planner agent
 playwright.config.ts
 ```
 
+- Locators follow Playwright's [recommended order](https://playwright.dev/docs/locators#quick-guide): `getByRole`, `getByLabel`, `getByText` and the other `getBy*` methods, with `getByTestId` last. `page.locator()` with a CSS or XPath string is a lint error (`playwright/no-raw-locators`). When no `getBy*` method fits, add a `data-testid` to Folio's source instead.
+- Page objects hold locators and actions; assertions belong in the tests.
 - Import `test` and `expect` from `fixtures/index.js`, not from `@playwright/test`. The `.js` extension is required because the project uses `NodeNext` module resolution.
 - `tests/seed.spec.ts` has no assertions on purpose, so the `playwright/expect-expect` lint warning on it is expected.
 
