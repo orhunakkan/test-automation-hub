@@ -60,6 +60,7 @@ pages/               # page objects
 tests/
 ├── auth.setup.ts    # the `setup` project: saves each user's signed-in session
 ├── seed.spec.ts     # seed test used by the Playwright planner agent
+├── api/             # HTTP API tests
 └── e2e/             # browser end-to-end tests
 specs/               # Markdown test plans written by the planner agent
 playwright.config.ts

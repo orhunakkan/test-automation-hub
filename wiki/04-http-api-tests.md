@@ -43,7 +43,7 @@ Prove Folio's HTTP endpoints answer correctly without a browser: a health check,
 
 | Phase | Change | Framework | Done |
 |---|---|---|---|
-| 1 | API-01 | Playwright | No |
+| 1 | API-01 | Playwright | Yes |
 | 2 | API-01 | Cypress | No |
 | 3 | REST Assured, and API-01 | Selenium | No |
 | 4 | API-02 | Playwright | No |
