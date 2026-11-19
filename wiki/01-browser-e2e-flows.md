@@ -44,7 +44,7 @@ The labels and status codes in this plan were checked on dev on 18 November 2026
 - **Page objects** go in each framework's `pages/` folder, one class per page.
 - **Sign-in helper:** each framework signs in the way its official documentation recommends, so tests that only need a signed-in user don't go through the sign-in form. It signs in each user, the member and the admin, and keeps a separate session for each. E2E-02 is the one test that signs in through the form, because the form is what it tests. Tests stay signed out unless they opt in.
   - **Playwright:** a `setup` project signs each user in once and saves their session with `storageState` to `playwright/.auth/member.json` and `playwright/.auth/admin.json`. Tests that need one opt in with `test.use({ storageState })` ([Authentication](https://playwright.dev/docs/auth), "Multiple signed in roles"). The setup signs in with a `POST /login` request, not the form, through a `signIn` fixture. Folio deletes the session on sign-out, so a test that ends its session, such as E2E-04, calls `signIn` for a session of its own instead of loading a saved one.
-  - **Cypress:** a custom command in `cypress/support/commands.js` that takes the user and wraps the sign-in in `cy.session`, with one session per user, so each is reused between tests.
+  - **Cypress:** a `cy.signIn(user)` command in `cypress/support/commands.js` that signs in with a `POST /login` request inside `cy.session`, with one session per user, cached across specs. Its `validate` checks the session still works, so after E2E-04 signs a cached session out, the next `cy.signIn` signs in again ([cy.session](https://on.cypress.io/session)).
   - **Selenium:** chosen from Selenium's documentation when its phase starts.
 
 ## Phases
@@ -58,7 +58,7 @@ The labels and status codes in this plan were checked on dev on 18 November 2026
 | 5 | Sign-in page object, and E2E-02 | Cypress | Yes |
 | 6 | Sign-in page object, and E2E-02 | Selenium | Yes |
 | 7 | Sign-in helper, and E2E-04 using it | Playwright | Yes |
-| 8 | Sign-in helper, and E2E-04 using it | Cypress | No |
+| 8 | Sign-in helper, and E2E-04 using it | Cypress | Yes |
 | 9 | Sign-in helper, and E2E-04 using it | Selenium | No |
 | 10 | E2E-03 | Playwright | No |
 | 11 | E2E-03 | Cypress | No |

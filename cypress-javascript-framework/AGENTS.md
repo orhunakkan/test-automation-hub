@@ -63,6 +63,15 @@ Locate every element with `cy.get('[data-testid=…]')`. Cypress's [selector bes
 - Lint enforces it: `cy.get` takes only a `data-testid` selector or an `@alias`, and `cy.contains`, `cy.getByRole` and XPath are errors.
 - Page objects hold locators and actions; assertions belong in the specs.
 
+## Signing in
+
+Follows Cypress's [best practices](https://docs.cypress.io/app/core-concepts/best-practices): sign in programmatically and reuse the session with [`cy.session`](https://on.cypress.io/session). Tests start signed out.
+
+- **`cy.signIn('member')` or `cy.signIn('admin')`** (`cypress/support/commands.js`): signs the user in with a `POST /login` request, not the form, sending the `Origin` header Folio requires. It throws if Folio doesn't redirect to `/library`.
+- **One cached session per user**, shared across specs (`cacheAcrossSpecs`). Its `validate` requests `/account`, which returns 200 only when signed in. Folio deletes the session on sign-out, so after a test signs out, the next `cy.signIn` for that user finds the cached session dead and signs in again.
+- `cy.session` clears the page, so `cy.visit` after `cy.signIn`.
+- Only the sign-in tests (`cypress/e2e/ui/sign-in.cy.js`) go through the form, because the form is what they test.
+
 ## Configuration and credentials
 
 `cypress.config.js` loads `.env` from this folder when it exists. `BASE_URL` sets `baseUrl` (default `https://dev.agenticlibrary.app`). The credentials go into the config's `env` block: `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `MEMBER_USERNAME`, `MEMBER_PASSWORD`.
