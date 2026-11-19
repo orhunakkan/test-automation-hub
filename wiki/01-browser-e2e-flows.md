@@ -40,7 +40,7 @@ The labels and status codes in this plan were checked on dev on 18 November 2026
 
 ## Framework notes
 
-- **Selectors:** use what each tool's official documentation recommends, which starts with what a user sees: roles, labels and text. No raw CSS or XPath selectors. Folio has no `data-testid` attributes yet; when nothing a user sees identifies an element, add the attribute the tool recommends to Folio's source rather than fall back to a raw selector.
+- **Selectors:** use what each tool's official documentation recommends, which starts with what a user sees: roles, labels and text. No raw CSS or XPath selectors. Folio's test attribute is `data-testid`, in all three frameworks: it's Playwright's `getByTestId` default, one of the data attributes Cypress documents, and Folio already uses it. When nothing a user sees identifies an element, add a `data-testid` to Folio's source rather than fall back to a raw selector.
 - **Page objects** go in each framework's `pages/` folder, one class per page.
 - **Sign-in helper:** each framework signs in the way its official documentation recommends, so tests that only need a signed-in user don't go through the sign-in form. It signs in each user, the member and the admin, and keeps a separate session for each. E2E-02 is the one test that signs in through the form, because the form is what it tests. Tests stay signed out unless they opt in.
   - **Playwright:** a `setup` project signs each user in once and saves their session with `storageState` to `playwright/.auth/member.json` and `playwright/.auth/admin.json`. Tests that need one opt in with `test.use({ storageState })` ([Authentication](https://playwright.dev/docs/auth), "Multiple signed in roles").
@@ -55,7 +55,7 @@ The labels and status codes in this plan were checked on dev on 18 November 2026
 | 2 | Library page object, and E2E-01 using it | Cypress | Yes |
 | 3 | Library page object, and E2E-01 using it | Selenium | Yes |
 | 4 | Sign-in page object, and E2E-02 | Playwright | Yes |
-| 5 | Sign-in page object, and E2E-02 | Cypress | No |
+| 5 | Sign-in page object, and E2E-02 | Cypress | Yes |
 | 6 | Sign-in page object, and E2E-02 | Selenium | No |
 | 7 | Sign-in helper, and E2E-04 using it | Playwright | No |
 | 8 | Sign-in helper, and E2E-04 using it | Cypress | No |

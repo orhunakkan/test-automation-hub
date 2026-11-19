@@ -57,8 +57,9 @@ cypress.config.js
 
 Follow Cypress's [selector best practices](https://docs.cypress.io/app/core-concepts/best-practices#Selecting-Elements), mixed:
 
-- Use `cy.contains` when the visible text is what the test checks, narrowed by a tag name when the text appears more than once, such as `cy.contains('h1', 'Library')`.
-- Otherwise use `cy.get('[data-cy=…]')`. When the element has no `data-cy` yet, add it to Folio's source.
+- Use [`cy.getByRole`](https://on.cypress.io/getbyrole) with the element's accessible name when it has a role, such as `cy.getByRole('button', { name: 'Sign in' })`. A string name must match the whole name. Some elements have no role, such as a password input or a `<summary>`.
+- Use `cy.contains` when the visible text is what the test checks and no role fits.
+- Otherwise use `cy.get('[data-testid=…]')`. Folio's test attribute is `data-testid`, shared with the Playwright and Selenium frameworks. When the element has none yet, add it to Folio's source.
 - `cy.get` with anything but a `data-*` selector is a lint error (`cypress/require-data-selectors`), and so is XPath (`cypress/no-xpath`).
 - Page objects hold locators and actions; assertions belong in the specs.
 
