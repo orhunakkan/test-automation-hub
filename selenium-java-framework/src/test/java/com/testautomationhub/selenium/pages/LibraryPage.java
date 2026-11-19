@@ -24,6 +24,10 @@ public class LibraryPage {
     return driver.findElement(HEADING);
   }
 
+  public WebElement book(String slug) {
+    return driver.findElement(By.cssSelector("[data-testid=book-card][data-key=" + slug + "]"));
+  }
+
   public WebElement accountMenu() {
     return displayed(ACCOUNT_MENU);
   }
