@@ -3,6 +3,10 @@ export class LibraryPage {
     return cy.get('[data-testid=library-title]');
   }
 
+  book(slug) {
+    return cy.get(`[data-testid=book-card][data-key=${slug}]`);
+  }
+
   accountMenu() {
     return cy.get('[data-testid=account-menu]').filter(':visible');
   }
