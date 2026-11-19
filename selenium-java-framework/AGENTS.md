@@ -45,12 +45,20 @@ Before you finish a change, run `./mvnw spotless:apply` and the tests you touche
 
 ```
 src/test/java/com/testautomationhub/selenium/
-├── support/   # Config (settings lookup), DriverFactory (creates the WebDriver)
+├── support/   # Config (settings lookup), DriverFactory (creates the WebDriver), SignIn (API sign-in)
 ├── pages/     # page objects
 └── tests/
     └── e2e/   # browser end-to-end tests
 src/test/resources/config.properties   # default settings
 ```
+
+## Signing in
+
+Follows Selenium's [Generating application state](https://www.selenium.dev/documentation/test_practices/encouraged/generating_application_state/): don't sign in through the browser before every test; "use an API to login and set a cookie". Tests start signed out.
+
+- **`SignIn.as(driver, "member")` or `"admin"`** (`support/SignIn.java`): posts the user's credentials to `/login` with Java's `HttpClient`, sending the `Origin` header Folio requires. It reads the `__Host-session` cookie from the response, opens `/robots.txt` to be on Folio's domain, and adds the cookie to the browser. It throws if Folio doesn't redirect to `/library`.
+- **A fresh session per test,** with no cached sessions, following Selenium's [Avoid sharing state](https://www.selenium.dev/documentation/test_practices/encouraged/avoid_sharing_state/) and one new driver per test. A test that signs out ends only its own session.
+- Only the sign-in tests (`SignInTest`) go through the form, because the form is what they test.
 
 ## Configuration and credentials
 
