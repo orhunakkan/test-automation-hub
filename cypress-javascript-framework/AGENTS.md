@@ -6,6 +6,7 @@ Instructions for AI coding agents working in `cypress-javascript-framework/`. Hu
 
 - Cypress 16.3.0, plain JavaScript (ES modules, no TypeScript), Node.js 22, 24 or 26+
 - ESLint 10 with `eslint-plugin-cypress`, Prettier 3
+- `axe-core` 4.14.1, for the accessibility specs
 - Built-in spec reporter, screenshots and videos
 - Application under test: Folio at `https://dev.agenticlibrary.app`
 
@@ -44,6 +45,7 @@ In a VS Code terminal, Cypress fails to start with `bad option: --no-sandbox` be
 ```
 cypress/
 ├── e2e/
+│   ├── a11y/        # accessibility specs (*.cy.js)
 │   ├── api/         # HTTP API specs (*.cy.js)
 │   └── ui/          # browser end-to-end specs (*.cy.js)
 ├── fixtures/        # static test data
@@ -73,6 +75,15 @@ Follows Cypress's [best practices](https://docs.cypress.io/app/core-concepts/bes
 - `cy.session` clears the page, so `cy.visit` after `cy.signIn`.
 - Only the sign-in tests (`cypress/e2e/ui/sign-in.cy.js`) go through the form, because the form is what they test.
 - **Access tokens (API specs only):** Folio also accepts `Authorization: Bearer <token>` on `/api/me`, the `/api/tokens` endpoints and the shelves endpoints. `cy.createToken('member')` (`cypress/support/commands.js`) yields a token from `POST /api/tokens` (JSON `username`, `password`, `name`, `expiresInDays: 1`; no `Origin` needed, `log: false`) and throws if that fails. A spec sends it in `headers` on each `cy.request` and calls `cy.revokeToken(token)` in `afterEach`. Only the token-creation spec (`cypress/e2e/api/tokens.cy.js`) calls `POST /api/tokens` itself, because creating is what it tests. Unlike the cookie, `cy.request` doesn't send it on its own. An account can have only 10 live tokens, so a token that isn't revoked holds a slot until it expires.
+
+## Accessibility
+
+The accessibility specs (`cypress/e2e/a11y/accessibility.cy.js`) follow [wiki/05-accessibility.md](../wiki/05-accessibility.md).
+
+- **`cy.axeViolations()`** (`cypress/support/commands.js`): waits until the page has hydrated and every running opacity or transform animation has finished, loads `node_modules/axe-core/axe.min.js` into the app's window with `cy.readFile`, and runs `axe.run` with the tags `wcag2a`, `wcag2aa`, `wcag21a` and `wcag21aa`. It yields one line per violation, `id (impact): help at <first five targets>`, and doesn't assert. The spec asserts the list is empty with `.should('deep.equal', [])`, after checking the expected screen is showing.
+- **Why not `cypress-axe`:** its latest release, 1.7.0, lists Cypress only up to 15 as a peer, so npm refuses it next to Cypress 16.3.0. Its Cypress 16 support is merged but unreleased ([#194](https://github.com/component-driven/cypress-axe/issues/194), [#196](https://github.com/component-driven/cypress-axe/issues/196)). The command does what `cypress-axe` does itself. Revisit once a release supports Cypress 16.
+- **Why `cy.readFile`:** importing `axe-core` into the support file doesn't work. The bundler wraps it, and `axe.source`, built from the bundled code, then fails in the page with `exports is not defined`.
+- Never exclude a rule or an element to make a scan pass. A violation is a Folio bug: report it.
 
 ## Configuration and credentials
 

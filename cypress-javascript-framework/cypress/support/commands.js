@@ -61,3 +61,33 @@ Cypress.Commands.add('revokeToken', (token) => {
     log: false,
   });
 });
+
+const isFadeOrSlide = (animation) => animation.playState === 'running' && animation.effect?.getKeyframes().some((frame) => 'opacity' in frame || 'transform' in frame);
+
+Cypress.Commands.add('axeViolations', () => {
+  cy.document().its('documentElement.dataset.hydrated');
+  cy.document().then((document) =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter(isFadeOrSlide)
+        .map((animation) => animation.finished),
+    ),
+  );
+  cy.readFile('node_modules/axe-core/axe.min.js', { log: false })
+    .then((source) =>
+      cy.window().then({ timeout: 30000 }, (win) => {
+        win.eval(source);
+        return win.axe.run(win.document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'] } });
+      }),
+    )
+    .then(({ violations }) =>
+      violations.map(
+        (violation) =>
+          `${violation.id} (${violation.impact}): ${violation.help} at ${violation.nodes
+            .slice(0, 5)
+            .map((node) => node.target.join(' '))
+            .join(', ')}`,
+      ),
+    );
+});
