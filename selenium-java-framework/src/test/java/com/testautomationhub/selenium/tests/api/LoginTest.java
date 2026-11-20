@@ -30,4 +30,22 @@ class LoginTest {
         .header("location", "/library")
         .cookie("__Host-session");
   }
+
+  @Test
+  void adminSignsIn() {
+    URI base = URI.create(Config.get("baseUrl"));
+    given()
+        .baseUri(base.toString())
+        .redirects()
+        .follow(false)
+        .header("Origin", base.getScheme() + "://" + base.getAuthority())
+        .formParam("username", Config.get("adminUsername"))
+        .formParam("password", Config.get("adminPassword"))
+        .when()
+        .post("/login")
+        .then()
+        .statusCode(303)
+        .header("location", "/library")
+        .cookie("__Host-session");
+  }
 }
