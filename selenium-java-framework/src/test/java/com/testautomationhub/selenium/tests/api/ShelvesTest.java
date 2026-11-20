@@ -3,6 +3,7 @@ package com.testautomationhub.selenium.tests.api;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
+import com.testautomationhub.selenium.support.AccessToken;
 import com.testautomationhub.selenium.support.Config;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
@@ -16,12 +17,18 @@ class ShelvesTest {
   private static final String ORIGIN = BASE.getScheme() + "://" + BASE.getAuthority();
 
   private String session;
+  private String token;
   private String shelfId;
 
   @AfterEach
-  void deleteShelf() {
+  void cleanUp() {
     if (shelfId != null) {
-      signedIn().body("{\"intent\":\"delete\"}").post("/account/shelves/" + shelfId);
+      (token != null ? withToken() : signedIn())
+          .body("{\"intent\":\"delete\"}")
+          .post("/account/shelves/" + shelfId);
+    }
+    if (token != null) {
+      AccessToken.revoke(token);
     }
   }
 
@@ -84,6 +91,44 @@ class ShelvesTest {
         .statusCode(200)
         .body("deleted", equalTo(true));
     shelfId = null;
+  }
+
+  @Test
+  void shelfLifecycleWithAToken() {
+    token = AccessToken.create("member");
+    String name = "api-test-" + System.currentTimeMillis();
+
+    shelfId =
+        withToken()
+            .body("{\"name\":\"" + name + "\"}")
+            .when()
+            .post("/account/shelves/new")
+            .then()
+            .statusCode(201)
+            .body("shelf.name", equalTo(name))
+            .extract()
+            .path("shelf.id");
+
+    withToken()
+        .body("{\"name\":\"" + name + "-renamed\"}")
+        .when()
+        .post("/account/shelves/" + shelfId)
+        .then()
+        .statusCode(200)
+        .body("shelf.name", equalTo(name + "-renamed"));
+
+    withToken()
+        .body("{\"intent\":\"delete\"}")
+        .when()
+        .post("/account/shelves/" + shelfId)
+        .then()
+        .statusCode(200)
+        .body("deleted", equalTo(true));
+    shelfId = null;
+  }
+
+  private RequestSpecification withToken() {
+    return given().baseUri(BASE.toString()).auth().oauth2(token).contentType(ContentType.JSON);
   }
 
   private RequestSpecification signedIn() {
