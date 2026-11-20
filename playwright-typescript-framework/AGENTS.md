@@ -42,7 +42,7 @@ Before you finish a change, run `typecheck`, `lint`, `format:check` and the test
 ## Native and Docker runs
 
 - **Native** (the commands above): for interactive and agent work, such as headed runs, UI mode and `playwright-cli`.
-- **Docker**: for full-suite runs, locally and in CI, using the same image. `docker compose run --rm --build tests` runs the whole suite; arguments after `tests` go to `playwright test`, for example `docker compose run --rm --build tests --project=firefox`.
+- **Docker**: for full-suite runs, locally and in CI, using the same image. `docker compose run --rm --build tests` runs the whole suite; arguments after `tests` go to `playwright test`, for example `docker compose run --rm --build tests --project='firefox*'`.
   - The image is built from `Dockerfile` on `mcr.microsoft.com/playwright:v1.65.1-noble`. When you upgrade `@playwright/test`, change the image tag to the same version.
   - `compose.yaml` mounts this folder into the container, so test edits need no rebuild and reports land in the usual folders. `node_modules` comes from the image; rebuild after changing dependencies (`--build` does that).
   - The container runs as your host user (`HOST_UID`/`HOST_GID`, default `1000`).
@@ -50,7 +50,7 @@ Before you finish a change, run `typecheck`, `lint`, `format:check` and the test
 
 ## CI
 
-`.github/workflows/playwright.yml` (at the repository root) runs the Docker suite on the self-hosted runner, once with `--project=chromium` and once with `--project=firefox`, on pushes to `main` that change this folder. `CI=true` is passed into the container, so the config's CI settings apply. A failed run attaches `playwright-report/` and `test-results/`.
+`.github/workflows/playwright.yml` (at the repository root) runs the Docker suite on the self-hosted runner, once with `--project='chromium*'` and once with `--project='firefox*'`, on pushes to `main` that change this folder. `CI=true` is passed into the container, so the config's CI settings apply. A failed run attaches `playwright-report/` and `test-results/`.
 
 ## Layout
 
@@ -92,7 +92,15 @@ Follows Playwright's [Authentication](https://playwright.dev/docs/auth) guide. T
 
 ## Browsers
 
-Only the `chromium` and `firefox` projects. Don't add WebKit, Edge or branded-Chrome projects.
+Only Chromium and Firefox: the desktop projects `chromium` and `firefox`, and the Chromium-only mobile projects below. Every project name starts with its browser, so `--project='chromium*'` or `--project='firefox*'` runs all of one browser's projects. Don't add WebKit, Edge or branded-Chrome projects.
+
+## Mobile devices
+
+The mobile layout tests emulate only the Pixel 10 Pro, the Galaxy Tab S9 and the Galaxy Tab S9 in landscape, in Chromium only, each as a project in `playwright.config.ts`: `chromium-pixel-10-pro`, `chromium-galaxy-tab-s9` and `chromium-galaxy-tab-s9-landscape`. Each project spreads Playwright's preset, whose `defaultBrowserType` is Chromium. Don't add Firefox mobile projects.
+
+- `tests/e2e/mobile-portrait.spec.ts` runs in the Pixel 10 Pro and Galaxy Tab S9 projects, and `tests/e2e/mobile-landscape.spec.ts` in the Galaxy Tab S9 landscape projects. The test files hold no device settings.
+- The desktop projects skip `mobile-*.spec.ts` files, and the mobile projects run only those.
+- Don't add other devices or sizes.
 
 ## Playwright documentation
 

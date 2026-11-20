@@ -33,7 +33,7 @@ Full-suite runs, locally and in CI, use the same Docker image, built from `Docke
 
 ```sh
 docker compose run --rm --build tests                     # Chromium and Firefox
-docker compose run --rm --build tests --project=firefox   # arguments go to playwright test
+docker compose run --rm --build tests --project='firefox*'   # arguments go to playwright test
 ```
 
 The folder is mounted into the container, so reports land in `playwright-report/` as usual. The container runs as user id 1000; if yours differs, set `HOST_UID=$(id -u) HOST_GID=$(id -g)`. Use native runs for headed mode, UI mode and agent work.

@@ -16,7 +16,10 @@ export default defineConfig({
   },
   projects: [
     { name: 'setup', testMatch: /.*\.setup\.ts/ },
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] }, dependencies: ['setup'] },
-    { name: 'firefox', use: { ...devices['Desktop Firefox'] }, dependencies: ['setup'] },
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] }, testIgnore: /mobile-.*\.spec\.ts/, dependencies: ['setup'] },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] }, testIgnore: /mobile-.*\.spec\.ts/, dependencies: ['setup'] },
+    { name: 'chromium-pixel-10-pro', use: { ...devices['Pixel 10 Pro'] }, testMatch: /mobile-portrait\.spec\.ts/ },
+    { name: 'chromium-galaxy-tab-s9', use: { ...devices['Galaxy Tab S9'] }, testMatch: /mobile-portrait\.spec\.ts/ },
+    { name: 'chromium-galaxy-tab-s9-landscape', use: { ...devices['Galaxy Tab S9 landscape'] }, testMatch: /mobile-landscape\.spec\.ts/ },
   ],
 });
