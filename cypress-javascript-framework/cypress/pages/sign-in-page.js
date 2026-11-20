@@ -1,4 +1,9 @@
 export class SignInPage {
+  open() {
+    cy.visit('/login');
+    cy.document().its('documentElement.dataset.hydrated');
+  }
+
   username() {
     return cy.get('[data-testid=username]');
   }

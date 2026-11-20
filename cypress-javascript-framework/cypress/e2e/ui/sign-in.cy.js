@@ -5,7 +5,7 @@ describe('sign in', () => {
   it('member signs in', () => {
     const signInPage = new SignInPage();
     const libraryPage = new LibraryPage();
-    cy.visit('/login');
+    signInPage.open();
     cy.env(['MEMBER_USERNAME', 'MEMBER_PASSWORD']).then(({ MEMBER_USERNAME, MEMBER_PASSWORD }) => {
       signInPage.signIn(MEMBER_USERNAME, MEMBER_PASSWORD);
     });
@@ -16,7 +16,7 @@ describe('sign in', () => {
   it('admin signs in', () => {
     const signInPage = new SignInPage();
     const libraryPage = new LibraryPage();
-    cy.visit('/login');
+    signInPage.open();
     cy.env(['ADMIN_USERNAME', 'ADMIN_PASSWORD']).then(({ ADMIN_USERNAME, ADMIN_PASSWORD }) => {
       signInPage.signIn(ADMIN_USERNAME, ADMIN_PASSWORD);
     });
@@ -26,7 +26,7 @@ describe('sign in', () => {
 
   it('wrong password is refused', () => {
     const signInPage = new SignInPage();
-    cy.visit('/login');
+    signInPage.open();
     signInPage.signIn('e2e-no-such-user', 'not-the-password');
     signInPage.error().should('have.text', 'Username or password is incorrect.');
   });
