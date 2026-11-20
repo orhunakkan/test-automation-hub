@@ -22,4 +22,22 @@ describe('login', () => {
       });
     });
   });
+
+  it('admin signs in', () => {
+    cy.env(['ADMIN_USERNAME', 'ADMIN_PASSWORD']).then(({ ADMIN_USERNAME, ADMIN_PASSWORD }) => {
+      cy.request({
+        method: 'POST',
+        url: '/login',
+        form: true,
+        body: { username: ADMIN_USERNAME, password: ADMIN_PASSWORD },
+        headers: { Origin: new URL(Cypress.config('baseUrl')).origin },
+        followRedirect: false,
+        log: false,
+      }).then((response) => {
+        expect(response.status).to.eq(303);
+        expect(response.headers.location).to.eq('/library');
+        expect(response.headers['set-cookie'][0]).to.match(/^__Host-session=/);
+      });
+    });
+  });
 });
