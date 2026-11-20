@@ -2,7 +2,7 @@
 
 The order to implement the test types in the [Testing Folio](CAPABILITIES.md#testing-folio) table, easiest first. Easy means each of Cypress, Playwright and Selenium can do it with built-in features or one free library, so the three frameworks can grow together.
 
-Suggested on 18 November 2026. Each framework has only a smoke test so far.
+Suggested on 18 November 2026, when each framework had only a smoke test.
 
 ✅ built in · 📦 free third-party library · 🔧 do-it-yourself workaround · ⚠️ partial or limited · ❌ not possible
 
