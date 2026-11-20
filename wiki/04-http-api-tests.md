@@ -67,7 +67,7 @@ Prove Folio's HTTP endpoints answer correctly without a browser: a health check,
 | 13 | API-05 | Playwright | Yes |
 | 14 | API-05 | Cypress | Yes |
 | 15 | API-05 | Selenium | Yes |
-| 16 | API-06 | Playwright | No |
+| 16 | API-06 | Playwright | Yes |
 | 17 | API-06 | Cypress | No |
 | 18 | API-06 | Selenium | No |
 | 19 | API-07 | Playwright | No |

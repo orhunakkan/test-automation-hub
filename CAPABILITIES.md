@@ -114,7 +114,7 @@ Unit and component tests aren't listed: they belong in the app's own repository,
 
 | Pyramid layer | Test type | Doable? | Why |
 |---|---|---|---|
-| **Integration / API** | HTTP API tests | ✅ | There are many JSON endpoints (highlights, bookmarks, shelves, sync, lookup, flashcards, export, `/healthz`). Every POST must send an `Origin` header matching the site, or it gets a 403 |
+| **Integration / API** | HTTP API tests | ✅ | There are many JSON endpoints (highlights, bookmarks, shelves, sync, lookup, flashcards, export, `/healthz`). There are two ways to sign in: the session cookie from `POST /login`, and a bearer access token from `POST /api/tokens`, which works on `/api/me`, the token endpoints and shelves. A POST with the cookie must send an `Origin` header matching the site, or it gets a 403; one with a token needs none |
 | | Contract / schema validation | ✅ | There's no OpenAPI spec, so the schemas are written by hand. Base them on the documented JSON routes, not the internal TanStack server-function calls |
 | | Network stubbing and mocking | ✅ | The app's own same-origin endpoints can be stubbed, such as Ask's streamed answers or word lookup. Anthropic, ElevenLabs and Open Library can't be, because the server calls them |
 | **UI / E2E** | Browser end-to-end flows | ✅ | Library, reader, player, import, highlights, accounts, admin |
