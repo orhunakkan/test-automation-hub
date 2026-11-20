@@ -46,7 +46,7 @@ Before you finish a change, run `./mvnw spotless:apply` and the tests you touche
 
 ```
 src/test/java/com/testautomationhub/selenium/
-├── support/   # Config (settings lookup), DriverFactory (creates the WebDriver), BrowserTest (base class: a fresh driver per test), SignIn (API sign-in)
+├── support/   # Config (settings lookup), DriverFactory (creates the WebDriver), BrowserTest (base class: a fresh driver per test), SignIn (API sign-in), AccessToken (bearer tokens for API tests)
 ├── pages/     # page objects
 └── tests/
     ├── api/   # HTTP API tests, with REST Assured and no browser
@@ -58,10 +58,10 @@ src/test/resources/config.properties   # default settings
 
 Follows Selenium's [Generating application state](https://www.selenium.dev/documentation/test_practices/encouraged/generating_application_state/): don't sign in through the browser before every test; "use an API to login and set a cookie". Tests start signed out.
 
-- **`SignIn.as(driver, "member")` or `"admin"`** (`support/SignIn.java`): posts the user's credentials to `/login` with Java's `HttpClient`, sending the `Origin` header Folio requires. It reads the `__Host-session` cookie from the response, opens `/robots.txt` to be on Folio's domain, and adds the cookie to the browser. It throws if Folio doesn't redirect to `/library`.
+- **`SignIn.as(driver, "member")` or `"admin"`** (`support/SignIn.java`): posts the user's credentials to `/login` with Java's `HttpClient`, sending the `Origin` header Folio requires. It reads the `__Host-session` cookie from the response, opens `/robots.txt` to be on Folio's domain, and adds the cookie to the browser. It throws if Folio doesn't redirect to `/library`. API tests that need a session cookie without a browser call `SignIn.sessionCookie("member")`, which is the same request without the browser step.
 - **A fresh session per test,** with no cached sessions, following Selenium's [Avoid sharing state](https://www.selenium.dev/documentation/test_practices/encouraged/avoid_sharing_state/) and one new driver per test. A test that signs out ends only its own session.
 - Only the sign-in tests (`SignInTest`) go through the form, because the form is what they test.
-- **Access tokens (API tests only):** Folio also accepts `Authorization: Bearer <token>` on `/api/me`, the `/api/tokens` endpoints and the shelves endpoints. A test gets one from `POST /api/tokens` with REST Assured (a `Map` body of `username`, `password`, `name`, `expiresInDays: 1`; no `Origin` needed), sends it with `.auth().oauth2(token)`, and revokes it in `@AfterEach` with `POST /api/tokens/current` and `{ "intent": "revoke" }`. Build JSON bodies that hold credentials from a `Map`, never by joining strings, so any character in a password is escaped. An account can have only 10 live tokens, so a token that isn't revoked holds a slot until it expires.
+- **Access tokens (API tests only):** Folio also accepts `Authorization: Bearer <token>` on `/api/me`, the `/api/tokens` endpoints and the shelves endpoints. `AccessToken.create("member")` (`support/AccessToken.java`) gets one from `POST /api/tokens` with REST Assured (a `Map` body of `username`, `password`, `name`, `expiresInDays: 1`; no `Origin` needed) and throws if that fails. A test sends it with `.auth().oauth2(token)` and calls `AccessToken.revoke(token)` in `@AfterEach`. Only `TokensTest` calls `POST /api/tokens` itself, because creating is what it tests. Build JSON bodies that hold credentials from a `Map`, never by joining strings, so any character in a password is escaped. An account can have only 10 live tokens, so a token that isn't revoked holds a slot until it expires.
 
 ## Configuration and credentials
 

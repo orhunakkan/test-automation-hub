@@ -20,8 +20,21 @@ public final class SignIn {
   private SignIn() {}
 
   public static void as(WebDriver driver, String user) {
-    String baseUrl = Config.get("baseUrl");
-    URI base = URI.create(baseUrl);
+    String session = sessionCookie(user);
+    driver.get(Config.get("baseUrl") + "/robots.txt");
+    driver
+        .manage()
+        .addCookie(
+            new Cookie.Builder(SESSION_COOKIE, session)
+                .path("/")
+                .isSecure(true)
+                .isHttpOnly(true)
+                .sameSite("Lax")
+                .build());
+  }
+
+  public static String sessionCookie(String user) {
+    URI base = URI.create(Config.get("baseUrl"));
     String form =
         "username="
             + encode(Config.get(user + "Username"))
@@ -42,22 +55,11 @@ public final class SignIn {
               + ", redirecting to "
               + location);
     }
-    String session =
-        response.headers().allValues("set-cookie").stream()
-            .filter(header -> header.startsWith(SESSION_COOKIE + "="))
-            .map(header -> header.substring(SESSION_COOKIE.length() + 1, header.indexOf(';')))
-            .findFirst()
-            .orElseThrow(() -> new IllegalStateException("Sign-in failed: no session cookie"));
-    driver.get(baseUrl + "/robots.txt");
-    driver
-        .manage()
-        .addCookie(
-            new Cookie.Builder(SESSION_COOKIE, session)
-                .path("/")
-                .isSecure(true)
-                .isHttpOnly(true)
-                .sameSite("Lax")
-                .build());
+    return response.headers().allValues("set-cookie").stream()
+        .filter(header -> header.startsWith(SESSION_COOKIE + "="))
+        .map(header -> header.substring(SESSION_COOKIE.length() + 1, header.indexOf(';')))
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("Sign-in failed: no session cookie"));
   }
 
   private static String encode(String value) {
