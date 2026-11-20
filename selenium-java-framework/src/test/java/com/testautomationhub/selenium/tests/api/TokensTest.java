@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.startsWith;
 
+import com.testautomationhub.selenium.support.AccessToken;
 import com.testautomationhub.selenium.support.Config;
 import io.restassured.http.ContentType;
 import java.util.Map;
@@ -51,5 +52,30 @@ class TokensTest {
             .body("tokenType", equalTo("Bearer"))
             .extract()
             .path("token");
+  }
+
+  @Test
+  void revokedTokenIsRefused() {
+    token = AccessToken.create("member");
+    given()
+        .baseUri(Config.get("baseUrl"))
+        .auth()
+        .oauth2(token)
+        .contentType(ContentType.JSON)
+        .body(Map.of("intent", "revoke"))
+        .when()
+        .post("/api/tokens/current")
+        .then()
+        .statusCode(200)
+        .body("revoked", equalTo(true));
+    given()
+        .baseUri(Config.get("baseUrl"))
+        .auth()
+        .oauth2(token)
+        .when()
+        .get("/api/me")
+        .then()
+        .statusCode(401)
+        .header("WWW-Authenticate", "Bearer error=\"invalid_token\"");
   }
 }
