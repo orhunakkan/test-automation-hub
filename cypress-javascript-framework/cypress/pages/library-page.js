@@ -40,6 +40,22 @@ export class LibraryPage {
     return cy.get('[data-testid=sign-in-link]').filter(':visible');
   }
 
+  menuButton() {
+    return cy.get('[data-testid=nav-menu-open]');
+  }
+
+  menuClose() {
+    return cy.get('[data-testid=nav-menu-close]');
+  }
+
+  navLink(key) {
+    return cy.get(`[data-testid=nav-link][data-key=${key}]`).filter(':visible');
+  }
+
+  openMenu() {
+    this.menuButton().click();
+  }
+
   signOut() {
     this.accountMenu().click();
     this.signOutButton().click();

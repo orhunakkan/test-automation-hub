@@ -89,6 +89,10 @@ Follows Cypress's [best practices](https://docs.cypress.io/app/core-concepts/bes
 
 Native runs use the system's Chromium and Firefox; Docker runs use the image's Google Chrome and Firefox. Always pass `--browser` (`chromium` natively, `chrome` in Docker, or `firefox`). Don't use Electron, Edge or WebKit.
 
+## Mobile devices
+
+The mobile layout specs (`cypress/e2e/ui/mobile.cy.js`) set only the viewports of the Pixel 10 Pro (427 × 876), the Galaxy Tab S9 (640 × 1024) and the Galaxy Tab S9 in landscape (1024 × 640), with `cy.viewport`. They run in Chromium-family browsers only (Chromium natively, Chrome in Docker): each `describe` sets `{ browser: { family: 'chromium' } }`, so Firefox runs skip them. Cypress has no device emulation, so the user agent, pixel ratio and touch stay the desktop browser's; Folio's layout depends only on width. Don't add other devices or sizes.
+
 ## Ignored React error #418
 
 Cypress injects a script into every page it loads. Folio renders the whole document on the server, so React treats that script as a hydration mismatch, reports React error #418 and rebuilds the page in the browser. The page works, and plain browsers load it without errors. `cypress/support/e2e.js` therefore ignores this one error, matched by its message. Every other uncaught application error still fails the test.
