@@ -6,12 +6,12 @@ Prove Folio's HTTP endpoints answer correctly without a browser: a health check,
 
 ## Scope
 
-- **In:** `/healthz`, the same-origin rule, signing in over HTTP, access tokens (create, use, revoke), `/api/me`, and shelves, which are the simplest endpoints to create and delete.
+- **In:** `/healthz`, the same-origin rule, signing in over HTTP as the member and the admin, access tokens (create, use, revoke), `/api/me`, and shelves, which are the simplest endpoints to create and delete.
 - **Out, for now:** endpoints that call outside services (Ask, translation, word lookup, read aloud), anything Pro-only, imports and the admin endpoints. Wrong-password token requests too: each failure counts toward the member's sign-in lock (5 in 15 minutes).
 
 ## Test data
 
-- **Account:** the member account from `MEMBER_USERNAME` and `MEMBER_PASSWORD`.
+- **Accounts:** the member account from `MEMBER_USERNAME` and `MEMBER_PASSWORD`. The admin account, from `ADMIN_USERNAME` and `ADMIN_PASSWORD`, is used only to sign in.
 - **Shelf names** include a timestamp, such as `api-test-1763500000`, so runs never clash with each other (a duplicate name gets 409).
 - **Token names** include a timestamp too, such as `api-test-1763500000`, and every token is made with `expiresInDays: 1`.
 - **Cleanup:** every test that creates a shelf deletes it, and every test that creates a token revokes it, at the end, even when the test fails. An account can have only 10 live tokens, so a leaked token takes a slot until it expires.
@@ -39,6 +39,7 @@ Prove Folio's HTTP endpoints answer correctly without a browser: a health check,
 | API-07 | Who am I, by cookie and by token | `GET /api/me` with the session cookie, then with a token | 200 with the member's username both times, `via` `cookie`, then `token` |
 | API-08 | Shelf lifecycle with a token | Create a token, then create, rename and delete a shelf with it, sending no `Origin` header | 201 with the shelf, then 200 with the new name, then 200 with `deleted: true` |
 | API-09 | Revoked token is refused | Create a token, revoke it, then `GET /api/me` with it | 200 with `revoked: true`, then 401 with `WWW-Authenticate: Bearer error="invalid_token"` |
+| API-10 | Admin signs in | `POST /login` with the admin's credentials and the right `Origin` | 303 to `/library`, with a session cookie |
 
 ## Framework notes
 
@@ -79,4 +80,7 @@ Prove Folio's HTTP endpoints answer correctly without a browser: a health check,
 | 25 | API-09 | Playwright | No |
 | 26 | API-09 | Cypress | No |
 | 27 | API-09 | Selenium | No |
-| 28 | Mark row 4 Done in ROADMAP.md | Repository | No |
+| 28 | API-10 | Playwright | No |
+| 29 | API-10 | Cypress | No |
+| 30 | API-10 | Selenium | No |
+| 31 | Mark row 4 Done in ROADMAP.md | Repository | No |
