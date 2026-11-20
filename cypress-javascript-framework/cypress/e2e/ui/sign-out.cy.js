@@ -4,7 +4,7 @@ describe('sign out', () => {
   it('member signs out', () => {
     const libraryPage = new LibraryPage();
     cy.signIn('member');
-    cy.visit('/library');
+    libraryPage.open();
     libraryPage.signOut();
     libraryPage.signInLink().should('be.visible');
   });
@@ -12,7 +12,7 @@ describe('sign out', () => {
   it('admin signs out', () => {
     const libraryPage = new LibraryPage();
     cy.signIn('admin');
-    cy.visit('/library');
+    libraryPage.open();
     libraryPage.signOut();
     libraryPage.signInLink().should('be.visible');
   });
