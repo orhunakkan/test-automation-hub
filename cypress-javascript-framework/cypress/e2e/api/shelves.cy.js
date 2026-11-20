@@ -43,4 +43,45 @@ describe('shelves', () => {
         shelfId = undefined;
       });
   });
+
+  describe('with a token', () => {
+    let token;
+    let tokenShelfId;
+
+    afterEach(() => {
+      if (tokenShelfId) {
+        cy.request({ method: 'POST', url: `/account/shelves/${tokenShelfId}`, body: { intent: 'delete' }, headers: { Authorization: `Bearer ${token}` }, failOnStatusCode: false });
+        tokenShelfId = undefined;
+      }
+      if (token) {
+        cy.revokeToken(token);
+        token = undefined;
+      }
+    });
+
+    it('shelf lifecycle with a token', () => {
+      const name = `api-test-${Date.now()}`;
+      cy.createToken('member')
+        .then((created) => {
+          token = created;
+          return cy.request({ method: 'POST', url: '/account/shelves/new', body: { name }, headers: { Authorization: `Bearer ${token}` } });
+        })
+        .then((response) => {
+          expect(response.status).to.eq(201);
+          expect(response.body.shelf.name).to.eq(name);
+          tokenShelfId = response.body.shelf.id;
+          return cy.request({ method: 'POST', url: `/account/shelves/${tokenShelfId}`, body: { name: `${name}-renamed` }, headers: { Authorization: `Bearer ${token}` } });
+        })
+        .then((response) => {
+          expect(response.status).to.eq(200);
+          expect(response.body.shelf.name).to.eq(`${name}-renamed`);
+          return cy.request({ method: 'POST', url: `/account/shelves/${tokenShelfId}`, body: { intent: 'delete' }, headers: { Authorization: `Bearer ${token}` } });
+        })
+        .then((response) => {
+          expect(response.status).to.eq(200);
+          expect(response.body).to.deep.eq({ deleted: true });
+          tokenShelfId = undefined;
+        });
+    });
+  });
 });
