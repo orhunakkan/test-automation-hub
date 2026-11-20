@@ -32,3 +32,32 @@ Cypress.Commands.add('signIn', (user) => {
     },
   );
 });
+
+Cypress.Commands.add('createToken', (user) => {
+  const [usernameKey, passwordKey] = users[user];
+  cy.env([usernameKey, passwordKey]).then((env) => {
+    cy.request({
+      method: 'POST',
+      url: '/api/tokens',
+      body: { username: env[usernameKey], password: env[passwordKey], name: `api-test-${Date.now()}`, expiresInDays: 1 },
+      failOnStatusCode: false,
+      log: false,
+    }).then((response) => {
+      if (response.status !== 201) {
+        throw new Error(`Token creation failed: POST /api/tokens returned ${response.status}`);
+      }
+      return response.body.token;
+    });
+  });
+});
+
+Cypress.Commands.add('revokeToken', (token) => {
+  cy.request({
+    method: 'POST',
+    url: '/api/tokens/current',
+    body: { intent: 'revoke' },
+    headers: { Authorization: `Bearer ${token}` },
+    failOnStatusCode: false,
+    log: false,
+  });
+});
