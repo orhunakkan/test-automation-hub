@@ -23,4 +23,19 @@ describe('tokens', () => {
       });
     });
   });
+
+  it('revoked token is refused', () => {
+    cy.createToken('member').then((created) => {
+      token = created;
+      const headers = { Authorization: `Bearer ${created}` };
+      cy.request({ method: 'POST', url: '/api/tokens/current', body: { intent: 'revoke' }, headers, log: false }).then((response) => {
+        expect(response.status).to.eq(200);
+        expect(response.body).to.include({ revoked: true });
+      });
+      cy.request({ url: '/api/me', headers, failOnStatusCode: false, log: false }).then((response) => {
+        expect(response.status).to.eq(401);
+        expect(response.headers['www-authenticate']).to.eq('Bearer error="invalid_token"');
+      });
+    });
+  });
 });
