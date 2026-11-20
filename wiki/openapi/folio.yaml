@@ -1,0 +1,718 @@
+# Folio's HTTP API endpoints: the access tokens, /api/me and the shelves, for contract testing by test-automation-hub.
+# Folio's other endpoints, its pages (the HTML a browser gets) and TanStack server functions (internal RPC at hashed
+# URLs) are not in it.
+# Hand-written from Folio's handlers, which live in its own repository. This copy is the reference, and each framework
+# in test-automation-hub keeps an identical copy: when Folio changes what an endpoint takes or answers, change this
+# file first, then each framework's copy in that framework's own commit. Folio's docs/accounts.md and docs/features/
+# are the prose behind it.
+openapi: 3.1.0
+info:
+  title: Folio API
+  version: 1.0.0
+  summary: Folio's API endpoints for access tokens, the signed-in account and shelves.
+  description: |
+    **Signing in.** Each operation's `security` says what it takes:
+
+    - **Bearer token or session cookie** (every operation but making a token): exchange a username and password for a
+      token at `POST /api/tokens`, then send `Authorization: Bearer <token>`. Or send the session cookie that Folio's
+      sign-in form, `POST /login`, sets; a POST with the cookie must also come from Folio's own origin.
+    - **Public** (`security: []`): `POST /api/tokens`, which takes the username and password itself.
+
+    **Errors** are JSON `{ "error": "<code>" }`, except a foreign `Origin` header, which is a plain-text 403. Every
+    JSON answer about an account is `Cache-Control: private, no-store`.
+
+    **Bodies** are JSON (`Content-Type: application/json`, else 415) under a size cap (else 413). Unknown fields and
+    wrong types are refused with 400 `invalid`, never ignored.
+
+    **Another account's** token or shelf is a 404 `not_found`, never a 403.
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Proprietary
+servers:
+  - url: https://dev.agenticlibrary.app
+    description: Dev, deployed from main
+security:
+  - bearerToken: []
+  - sessionCookie: []
+tags:
+  - name: Access tokens
+    description: Making, listing and revoking access tokens.
+  - name: Account
+    description: Who a request signs in as.
+  - name: Shelves
+    description: The account's named shelves of books (docs/features/shelves.md).
+
+paths:
+  /api/tokens:
+    post:
+      operationId: createAccessToken
+      tags: [Access tokens]
+      summary: Exchange a username and password for an access token
+      description: |
+        A sign-in: it counts towards the username's lock and the IP block, like the sign-in form. The token is in
+        this answer once and never again; only its hash is stored. Tokens end at `expiresAt`, after 7 days without
+        use, or when the account's password changes or it signs out everywhere. An account may have 10 live tokens.
+        Test suites should make short ones (`expiresInDays: 1`) and revoke them in teardown.
+
+        Needs no `Origin` header, but a foreign one is 403. Any cookie sent is ignored.
+      security: []
+      requestBody:
+        required: true
+        description: At most 8 KB.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenCreateBody'
+            example:
+              username: reader
+              password: correct horse battery staple
+              name: API suite
+              expiresInDays: 1
+      responses:
+        '201':
+          description: The new token.
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControl'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenCreated'
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '401':
+          description: |
+            A wrong password, or an unknown, disabled, malformed or locked username: all the same answer, so nobody
+            learns which accounts exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: invalid_credentials
+        '403':
+          $ref: '#/components/responses/ForeignOrigin'
+        '409':
+          description: The account already has 10 live tokens.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenQuotaError'
+        '413':
+          $ref: '#/components/responses/TooLarge'
+        '415':
+          $ref: '#/components/responses/NotJson'
+        '429':
+          description: Too many sign-in attempts from this IP address.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: limited
+        '500':
+          $ref: '#/components/responses/Failed'
+        '503':
+          description: The server has no database configured.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: unavailable
+    get:
+      operationId: listAccessTokens
+      tags: [Access tokens]
+      summary: List the account's live access tokens
+      description: Newest first. Never includes a token or its hash.
+      responses:
+        '200':
+          description: The live tokens.
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControl'
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [tokens]
+                properties:
+                  tokens:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AccessToken'
+        '401':
+          $ref: '#/components/responses/SignedOut'
+        '403':
+          $ref: '#/components/responses/ForeignOrigin'
+        '500':
+          $ref: '#/components/responses/Failed'
+
+  /api/tokens/{tokenId}:
+    post:
+      operationId: revokeAccessToken
+      tags: [Access tokens]
+      summary: Revoke one of the account's access tokens
+      description: |
+        `current` revokes the token the request was made with. An id that isn't a UUID, another account's token, or
+        `current` on a cookie request is 404.
+      parameters:
+        - name: tokenId
+          in: path
+          required: true
+          description: A token's `id`, or `current`.
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/Uuid'
+              - type: string
+                const: current
+      requestBody:
+        required: true
+        description: At most 1 KB.
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [intent]
+              properties:
+                intent:
+                  type: string
+                  const: revoke
+      responses:
+        '200':
+          description: Revoked.
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControl'
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [revoked]
+                properties:
+                  revoked:
+                    type: boolean
+                    const: true
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '401':
+          $ref: '#/components/responses/SignedOut'
+        '403':
+          $ref: '#/components/responses/ForeignOrigin'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '413':
+          $ref: '#/components/responses/TooLarge'
+        '415':
+          $ref: '#/components/responses/NotJson'
+        '500':
+          $ref: '#/components/responses/Failed'
+
+  /api/me:
+    get:
+      operationId: getMe
+      tags: [Account]
+      summary: Who the request signs in as
+      responses:
+        '200':
+          description: The signed-in account.
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControl'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+        '401':
+          $ref: '#/components/responses/SignedOut'
+        '403':
+          $ref: '#/components/responses/ForeignOrigin'
+
+  /account/shelves/new:
+    post:
+      operationId: createShelf
+      tags: [Shelves]
+      summary: Make a shelf, optionally with a book already on it
+      requestBody:
+        required: true
+        description: At most 2 KB.
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [name]
+              properties:
+                name:
+                  $ref: '#/components/schemas/ShelfName'
+                book:
+                  $ref: '#/components/schemas/BookSlug'
+            example:
+              name: To read
+              book: pride-and-prejudice
+      responses:
+        '201':
+          description: The new shelf.
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControl'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShelfAnswer'
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '401':
+          $ref: '#/components/responses/SignedOut'
+        '403':
+          $ref: '#/components/responses/ForeignOrigin'
+        '404':
+          description: The book isn't in the catalogue or isn't one of the account's ready books.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: not_found
+        '409':
+          $ref: '#/components/responses/ShelfConflict'
+        '413':
+          $ref: '#/components/responses/TooLarge'
+        '415':
+          $ref: '#/components/responses/NotJson'
+        '500':
+          $ref: '#/components/responses/Failed'
+
+  /account/shelves/{shelfId}:
+    post:
+      operationId: changeShelf
+      tags: [Shelves]
+      summary: Rename or delete a shelf
+      parameters:
+        - $ref: '#/components/parameters/ShelfId'
+      requestBody:
+        required: true
+        description: At most 2 KB. A rename or a delete, never both.
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - title: Rename
+                  type: object
+                  additionalProperties: false
+                  required: [name]
+                  properties:
+                    name:
+                      $ref: '#/components/schemas/ShelfName'
+                - title: Delete
+                  type: object
+                  additionalProperties: false
+                  required: [intent]
+                  properties:
+                    intent:
+                      type: string
+                      const: delete
+            examples:
+              rename:
+                value:
+                  name: Finished
+              delete:
+                value:
+                  intent: delete
+      responses:
+        '200':
+          description: 'The renamed shelf, or `{ "deleted": true }`.'
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControl'
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ShelfAnswer'
+                  - type: object
+                    additionalProperties: false
+                    required: [deleted]
+                    properties:
+                      deleted:
+                        type: boolean
+                        const: true
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '401':
+          $ref: '#/components/responses/SignedOut'
+        '403':
+          $ref: '#/components/responses/ForeignOrigin'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Another of the account's shelves has this name (case and accents ignored).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: duplicate
+        '413':
+          $ref: '#/components/responses/TooLarge'
+        '415':
+          $ref: '#/components/responses/NotJson'
+        '500':
+          $ref: '#/components/responses/Failed'
+
+  /account/shelves/{shelfId}/books:
+    post:
+      operationId: setShelfBook
+      tags: [Shelves]
+      summary: Put a book on a shelf, or take it off
+      description: Putting on a book that's already there, or taking off one that isn't, is not an error.
+      parameters:
+        - $ref: '#/components/parameters/ShelfId'
+      requestBody:
+        required: true
+        description: At most 2 KB.
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [book, 'on']
+              properties:
+                book:
+                  $ref: '#/components/schemas/BookSlug'
+                'on':
+                  type: boolean
+                  description: '`true` puts the book on the shelf, `false` takes it off.'
+            example:
+              book: pride-and-prejudice
+              'on': true
+      responses:
+        '200':
+          description: The shelf as it is afterwards.
+          headers:
+            Cache-Control:
+              $ref: '#/components/headers/CacheControl'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShelfAnswer'
+        '400':
+          $ref: '#/components/responses/Invalid'
+        '401':
+          $ref: '#/components/responses/SignedOut'
+        '403':
+          $ref: '#/components/responses/ForeignOrigin'
+        '404':
+          description: The shelf or the book isn't found, or isn't the account's.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: not_found
+        '409':
+          description: The account has 2,000 books on shelves.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShelfQuotaError'
+              example:
+                error: quota
+                scope: shelf_books
+                max: 2000
+        '413':
+          $ref: '#/components/responses/TooLarge'
+        '415':
+          $ref: '#/components/responses/NotJson'
+        '500':
+          $ref: '#/components/responses/Failed'
+
+components:
+  securitySchemes:
+    bearerToken:
+      type: http
+      scheme: bearer
+      bearerFormat: folio_at_ followed by 43 base64url characters
+      description: |
+        `Authorization: Bearer <token>`, from `POST /api/tokens`. Only in that header, never a query string, form
+        field or cookie. When the header is present it alone decides: a bad or ended token is signed out, and the
+        session cookie is no fallback.
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: __Host-session
+      description: |
+        The session cookie `POST /login` sets (`session` when served over plain HTTP, as in local tests). A POST with
+        it must also come from Folio's own origin (`Origin`, or `Sec-Fetch-Site: same-origin`).
+
+  parameters:
+    ShelfId:
+      name: shelfId
+      in: path
+      required: true
+      description: A shelf's `id`. Anything that isn't a UUID is 404.
+      schema:
+        $ref: '#/components/schemas/Uuid'
+
+  headers:
+    CacheControl:
+      description: Every answer is about one account, so it is never cached.
+      schema:
+        type: string
+        const: private, no-store
+    WwwAuthenticate:
+      description: |
+        `Bearer` when no credentials were sent; `Bearer error="invalid_token"` when a token was sent but is malformed,
+        unknown, expired, idle or its account disabled.
+      schema:
+        type: string
+        enum: [Bearer, Bearer error="invalid_token"]
+
+  responses:
+    SignedOut:
+      description: No valid token or session cookie.
+      headers:
+        WWW-Authenticate:
+          $ref: '#/components/headers/WwwAuthenticate'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: signed_out
+    ForeignOrigin:
+      description: |
+        An `Origin` header from another site. A cookie request (no `Authorization` header) that changes something
+        must also come from Folio's own origin.
+      content:
+        text/plain:
+          schema:
+            type: string
+            const: Forbidden
+    Invalid:
+      description: The body isn't valid JSON, or doesn't match the schema.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: invalid
+    TooLarge:
+      description: The body is over the operation's size cap.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: invalid
+    NotJson:
+      description: The `Content-Type` isn't `application/json`.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: invalid
+    NotFound:
+      description: Not found, malformed, or another account's.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: not_found
+    ShelfConflict:
+      description: |
+        `duplicate`: another of the account's shelves has this name (case and accents ignored). `quota`: the account
+        has 50 shelves, or 2,000 books on shelves.
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/Error'
+              - $ref: '#/components/schemas/ShelfQuotaError'
+          examples:
+            duplicate:
+              value:
+                error: duplicate
+            quota:
+              value:
+                error: quota
+                scope: shelves
+                max: 50
+    Failed:
+      description: Something went wrong on the server; it is logged.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: failed
+
+  schemas:
+    Uuid:
+      type: string
+      pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+      description: A lowercase UUID.
+    Timestamp:
+      type: string
+      format: date-time
+      description: ISO 8601 in UTC, with milliseconds.
+      examples: ['2026-11-20T09:30:00.000Z']
+    Error:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          type: string
+          enum: [invalid, invalid_credentials, limited, signed_out, not_found, duplicate, unavailable, failed]
+    TokenQuotaError:
+      type: object
+      additionalProperties: false
+      required: [error, max]
+      properties:
+        error:
+          type: string
+          const: quota
+        max:
+          type: integer
+          const: 10
+    ShelfQuotaError:
+      type: object
+      additionalProperties: false
+      required: [error, scope, max]
+      properties:
+        error:
+          type: string
+          const: quota
+        scope:
+          type: string
+          enum: [shelves, shelf_books]
+          description: '`shelves`: 50 shelves per account. `shelf_books`: 2,000 books on shelves per account.'
+        max:
+          type: integer
+          enum: [50, 2000]
+    TokenCreateBody:
+      type: object
+      additionalProperties: false
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          maxLength: 64
+        password:
+          type: string
+          maxLength: 1024
+          format: password
+        name:
+          type: string
+          minLength: 1
+          maxLength: 60
+          default: Access token
+          description: Trimmed; no control characters.
+        expiresInDays:
+          type: integer
+          minimum: 1
+          maximum: 30
+          default: 30
+    TokenCreated:
+      type: object
+      additionalProperties: false
+      required: [token, tokenType, expiresAt, id, name]
+      properties:
+        token:
+          type: string
+          pattern: '^folio_at_[A-Za-z0-9_-]{43}$'
+          description: The token itself. Shown only in this answer.
+        tokenType:
+          type: string
+          const: Bearer
+        expiresAt:
+          $ref: '#/components/schemas/Timestamp'
+        id:
+          $ref: '#/components/schemas/Uuid'
+        name:
+          type: string
+    AccessToken:
+      type: object
+      additionalProperties: false
+      required: [id, name, createdAt, lastUsedAt, expiresAt, current]
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        name:
+          type: string
+        createdAt:
+          $ref: '#/components/schemas/Timestamp'
+        lastUsedAt:
+          description: Null until its first use; after that, updated at most every 10 minutes.
+          oneOf:
+            - $ref: '#/components/schemas/Timestamp'
+            - type: 'null'
+        expiresAt:
+          $ref: '#/components/schemas/Timestamp'
+        current:
+          type: boolean
+          description: Whether this is the token the request was made with.
+    Me:
+      type: object
+      additionalProperties: false
+      required: [username, role, plan, via]
+      properties:
+        username:
+          type: string
+        role:
+          type: string
+          enum: [admin, member]
+        plan:
+          type: string
+          enum: [free, pro]
+        via:
+          type: string
+          enum: [cookie, token]
+          description: Whether the request signed in with the session cookie or an access token.
+    ShelfName:
+      type: string
+      maxLength: 200
+      description: |
+        Cleaned before it is stored: Unicode NFC, whitespace runs become one space, control characters removed,
+        trimmed. What is left must be 1 to 40 characters, or the request is 400 `invalid`. The answer carries the
+        cleaned name.
+    BookSlug:
+      type: string
+      maxLength: 200
+      description: A catalogue book's slug, or `u-<uuid>` for one of the account's own uploaded books.
+      anyOf:
+        - pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+          not:
+            pattern: '^u-'
+        - pattern: '^u-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+      examples: [pride-and-prejudice]
+    Shelf:
+      type: object
+      additionalProperties: false
+      required: [id, name, books]
+      properties:
+        id:
+          $ref: '#/components/schemas/Uuid'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 40
+        books:
+          type: array
+          description: |
+            Book slugs, newest added first. A catalogue book that has left the catalogue is left out.
+          items:
+            type: string
+    ShelfAnswer:
+      type: object
+      additionalProperties: false
+      required: [shelf]
+      properties:
+        shelf:
+          $ref: '#/components/schemas/Shelf'
