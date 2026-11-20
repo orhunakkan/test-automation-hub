@@ -6,7 +6,7 @@ Instructions for AI coding agents working in `selenium-java-framework/`. Humans 
 
 - Selenium 4.53.0 (Java bindings), Java 25, Maven through the wrapper (`./mvnw`)
 - JUnit Jupiter 6.1.3 (via `junit-bom`), AssertJ 3.27.7
-- REST Assured 6.3.0, for the HTTP API tests
+- REST Assured 6.3.0, for the HTTP API tests, with Jackson 3.3.0 (`jackson-databind`) so request bodies can be Java maps
 - Spotless 3.11.0 with google-java-format
 - Checkstyle 14.4.0 (maven-checkstyle-plugin 3.6.0), for the locator rule only
 - Application under test: Folio at `https://dev.agenticlibrary.app`
@@ -61,6 +61,7 @@ Follows Selenium's [Generating application state](https://www.selenium.dev/docum
 - **`SignIn.as(driver, "member")` or `"admin"`** (`support/SignIn.java`): posts the user's credentials to `/login` with Java's `HttpClient`, sending the `Origin` header Folio requires. It reads the `__Host-session` cookie from the response, opens `/robots.txt` to be on Folio's domain, and adds the cookie to the browser. It throws if Folio doesn't redirect to `/library`.
 - **A fresh session per test,** with no cached sessions, following Selenium's [Avoid sharing state](https://www.selenium.dev/documentation/test_practices/encouraged/avoid_sharing_state/) and one new driver per test. A test that signs out ends only its own session.
 - Only the sign-in tests (`SignInTest`) go through the form, because the form is what they test.
+- **Access tokens (API tests only):** Folio also accepts `Authorization: Bearer <token>` on `/api/me`, the `/api/tokens` endpoints and the shelves endpoints. A test gets one from `POST /api/tokens` with REST Assured (a `Map` body of `username`, `password`, `name`, `expiresInDays: 1`; no `Origin` needed), sends it with `.auth().oauth2(token)`, and revokes it in `@AfterEach` with `POST /api/tokens/current` and `{ "intent": "revoke" }`. Build JSON bodies that hold credentials from a `Map`, never by joining strings, so any character in a password is escaped. An account can have only 10 live tokens, so a token that isn't revoked holds a slot until it expires.
 
 ## Configuration and credentials
 
