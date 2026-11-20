@@ -51,16 +51,16 @@ Every scenario below scanned clean on dev on 20 November 2026, in Chromium and F
 
 | Phase | Change | Framework | Done |
 |---|---|---|---|
-| 1 | `@axe-core/playwright`, the scan fixture, and A11Y-01 | Playwright | No |
-| 2 | `axe-core`, `cy.axeViolations()`, and A11Y-01 | Cypress | No |
-| 3 | axe-core for Selenium, the scan helper, and A11Y-01 | Selenium | No |
-| 4 | A11Y-02 and A11Y-03 | Playwright | No |
-| 5 | A11Y-02 and A11Y-03 | Cypress | No |
-| 6 | A11Y-02 and A11Y-03 | Selenium | No |
-| 7 | A11Y-04 and A11Y-05 | Playwright | No |
-| 8 | A11Y-04 and A11Y-05 | Cypress | No |
-| 9 | A11Y-04 and A11Y-05 | Selenium | No |
-| 10 | Account page object, and A11Y-06 and A11Y-07 | Playwright | No |
-| 11 | Account page object, and A11Y-06 and A11Y-07 | Cypress | No |
-| 12 | Account page object, and A11Y-06 and A11Y-07 | Selenium | No |
+| 1 | `@axe-core/playwright`, the scan fixture, and A11Y-01 | Playwright | Yes |
+| 2 | `axe-core`, `cy.axeViolations()`, and A11Y-01 | Cypress | Yes |
+| 3 | axe-core for Selenium, the scan helper, and A11Y-01 | Selenium | Yes |
+| 4 | A11Y-02 and A11Y-03 | Playwright | Yes |
+| 5 | A11Y-02 and A11Y-03 | Cypress | Yes |
+| 6 | A11Y-02 and A11Y-03 | Selenium | Yes |
+| 7 | A11Y-04 and A11Y-05 | Playwright | Yes |
+| 8 | A11Y-04 and A11Y-05 | Cypress | Yes |
+| 9 | A11Y-04 and A11Y-05 | Selenium | Yes |
+| 10 | Account page object, and A11Y-06 and A11Y-07 | Playwright | Yes |
+| 11 | Account page object, and A11Y-06 and A11Y-07 | Cypress | Yes |
+| 12 | Account page object, and A11Y-06 and A11Y-07 | Selenium | Yes |
 | 13 | Mark row 5 Done in ROADMAP.md, and name `axe-core` in its Cypress cell | Repository | No |
