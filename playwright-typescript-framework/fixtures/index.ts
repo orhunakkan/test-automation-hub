@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { test as base, expect } from '@playwright/test';
 
 export type User = { username: string; password: string; authFile: string };
@@ -17,6 +18,7 @@ export const admin: User = {
 type Fixtures = {
   signIn: (user: User) => Promise<void>;
   memberToken: string;
+  axeViolations: () => Promise<string[]>;
 };
 
 export const test = base.extend<Fixtures>({
@@ -45,6 +47,25 @@ export const test = base.extend<Fixtures>({
     await request.post('/api/tokens/current', {
       data: { intent: 'revoke' },
       headers: { Authorization: `Bearer ${token}` },
+    });
+  },
+  axeViolations: async ({ page }, use) => {
+    await use(async () => {
+      await page.waitForFunction(
+        () =>
+          document.documentElement.dataset.hydrated === 'true' &&
+          document
+            .getAnimations()
+            .every((animation) => animation.playState !== 'running' || !(animation.effect as KeyframeEffect | null)?.getKeyframes().some((frame) => 'opacity' in frame || 'transform' in frame)),
+      );
+      const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+      return violations.map(
+        (violation) =>
+          `${violation.id} (${violation.impact}): ${violation.help} at ${violation.nodes
+            .slice(0, 5)
+            .map((node) => node.target.join(' '))
+            .join(', ')}`,
+      );
     });
   },
 });

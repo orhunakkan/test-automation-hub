@@ -6,6 +6,7 @@ Instructions for AI coding agents working in `playwright-typescript-framework/`.
 
 - Playwright Test 1.65.1, TypeScript 6.0.3, Node.js 22 or later
 - ESLint 10 with `typescript-eslint` and `eslint-plugin-playwright`, Prettier 3
+- `@axe-core/playwright` 4.14.0, for the accessibility tests
 - Built-in HTML reporter
 - Application under test: Folio at `https://dev.agenticlibrary.app`
 
@@ -55,11 +56,12 @@ Before you finish a change, run `typecheck`, `lint`, `format:check` and the test
 ## Layout
 
 ```
-fixtures/index.ts    # exports `test`, `expect`, the `member` and `admin` users and the `signIn` fixture
+fixtures/index.ts    # exports `test`, `expect`, the `member` and `admin` users, and the `signIn`, `memberToken` and `axeViolations` fixtures
 pages/               # page objects
 tests/
 ├── auth.setup.ts    # the `setup` project: saves each user's signed-in session
 ├── seed.spec.ts     # seed test used by the Playwright planner agent
+├── a11y/            # accessibility tests
 ├── api/             # HTTP API tests
 └── e2e/             # browser end-to-end tests
 specs/               # Markdown test plans written by the planner agent
@@ -80,6 +82,14 @@ Follows Playwright's [Authentication](https://playwright.dev/docs/auth) guide. T
 - **Tests that end the session**, such as signing out or changing the password, call `signIn` for a session of their own. Folio deletes the session on sign-out, so a saved session would stop working for every other test in the run.
 - Only the sign-in tests (`tests/e2e/sign-in.spec.ts`) go through the form, because the form is what they test.
 - **Access tokens (API tests only):** Folio also accepts `Authorization: Bearer <token>` on `/api/me`, the `/api/tokens` endpoints and the shelves endpoints. The `memberToken` fixture creates a member token with `POST /api/tokens` (JSON `username`, `password`, `name`, `expiresInDays: 1`; no `Origin` needed), throws if that fails, and revokes the token with `POST /api/tokens/current` and `{ "intent": "revoke" }` when the test ends. A test sends it in `headers` on each request. Only the token-creation test (`tests/api/tokens.spec.ts`) calls `POST /api/tokens` itself, because creating is what it tests. An account can have only 10 live tokens, so a token that isn't revoked holds a slot until it expires.
+
+## Accessibility
+
+The accessibility tests (`tests/a11y/accessibility.spec.ts`) follow [wiki/05-accessibility.md](../wiki/05-accessibility.md) and run in the desktop projects.
+
+- **`axeViolations()` fixture:** waits until the page has hydrated and no opacity or transform animation is running, then runs `AxeBuilder` with the tags `wcag2a`, `wcag2aa`, `wcag21a` and `wcag21aa`. It returns one line per violation, `id (impact): help at <first five targets>`, and doesn't assert. The test asserts the list is empty, after checking the expected screen is showing.
+- Never exclude a rule or an element to make a scan pass. A violation is a Folio bug: report it.
+- **Firefox crash:** in Firefox, locating anything inside the account menu (`<summary>` in the sidebar's `<details>`) with `getByLabel` or `getByText`, before or after an axe scan in the same page, crashes the page (`Page crashed`), every time. `getByTestId` and the scan alone don't. A minimal page with the same markup doesn't reproduce it, so it's a browser bug, not an accessibility failure. The signed-in library test therefore checks the "Sign in" link is gone, not that the account menu shows.
 
 ## Configuration and credentials
 
