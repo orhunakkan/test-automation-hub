@@ -44,3 +44,37 @@ test.describe('signed in', () => {
     shelfId = undefined;
   });
 });
+
+test.describe('with a token', () => {
+  let shelfId: string | undefined;
+
+  test.afterEach(async ({ request, memberToken }) => {
+    if (shelfId) {
+      await request.post(`/account/shelves/${shelfId}`, {
+        data: { intent: 'delete' },
+        headers: { Authorization: `Bearer ${memberToken}` },
+      });
+      shelfId = undefined;
+    }
+  });
+
+  test('shelf lifecycle with a token', async ({ request, memberToken }) => {
+    const headers = { Authorization: `Bearer ${memberToken}` };
+    const name = `api-test-${Date.now()}`;
+
+    const created = await request.post('/account/shelves/new', { data: { name }, headers });
+    expect(created.status()).toBe(201);
+    const { shelf } = await created.json();
+    shelfId = shelf.id;
+    expect(shelf.name).toBe(name);
+
+    const renamed = await request.post(`/account/shelves/${shelfId}`, { data: { name: `${name}-renamed` }, headers });
+    expect(renamed.status()).toBe(200);
+    expect((await renamed.json()).shelf.name).toBe(`${name}-renamed`);
+
+    const deleted = await request.post(`/account/shelves/${shelfId}`, { data: { intent: 'delete' }, headers });
+    expect(deleted.status()).toBe(200);
+    expect(await deleted.json()).toEqual({ deleted: true });
+    shelfId = undefined;
+  });
+});
