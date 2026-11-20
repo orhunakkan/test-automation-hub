@@ -25,7 +25,7 @@ Each needs a library in every framework, or one framework needs a workaround, ha
 
 | Order | Test type | Selenium | Cypress | Playwright | Why later | Done |
 |---|---|---|---|---|---|---|
-| 5 | Accessibility | 📦 axe-core for Selenium | 📦 `cypress-axe` | 📦 `@axe-core/playwright` | Each needs one axe library, and reuses the end-to-end pages. Check the libraries are maintained before adopting them | No |
+| 5 | Accessibility | 📦 axe-core for Selenium | 📦 `axe-core` | 📦 `@axe-core/playwright` | Each needs one axe library, and reuses the end-to-end pages. Cypress uses `axe-core` directly, because `cypress-axe` doesn't support Cypress 16 yet | Yes |
 | 6 | Contract / schema validation | 📦 REST Assured's JSON schema validator | 📦 A JSON schema library such as Ajv | 📦 A JSON schema library such as Ajv | Builds on the API tests. There's no API spec, so the schemas are written by hand, in each framework | No |
 | 7 | Time and clock control | 🔧 Inject a fake-timer script | ✅ `cy.clock` | ✅ `page.clock` | Selenium needs a workaround. Only times the browser decides can be moved | No |
 | 8 | Passkeys / WebAuthn | ✅ Virtual authenticator | 🔧 Chrome DevTools commands, Chromium only | ✅ Virtual authenticator | Cypress can't run it in Firefox. A test that resets the password also removes the account's passkeys | No |

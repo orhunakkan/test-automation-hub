@@ -63,4 +63,4 @@ Every scenario below scanned clean on dev on 20 November 2026, in Chromium and F
 | 10 | Account page object, and A11Y-06 and A11Y-07 | Playwright | Yes |
 | 11 | Account page object, and A11Y-06 and A11Y-07 | Cypress | Yes |
 | 12 | Account page object, and A11Y-06 and A11Y-07 | Selenium | Yes |
-| 13 | Mark row 5 Done in ROADMAP.md, and name `axe-core` in its Cypress cell | Repository | No |
+| 13 | Mark row 5 Done in ROADMAP.md, and name `axe-core` in its Cypress cell | Repository | Yes |
