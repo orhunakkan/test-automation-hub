@@ -16,6 +16,7 @@ export const admin: User = {
 
 type Fixtures = {
   signIn: (user: User) => Promise<void>;
+  memberToken: string;
 };
 
 export const test = base.extend<Fixtures>({
@@ -30,6 +31,20 @@ export const test = base.extend<Fixtures>({
       if (location !== '/library') {
         throw new Error(`Sign-in failed: POST /login returned ${response.status()}, redirecting to ${location}`);
       }
+    });
+  },
+  memberToken: async ({ request }, use) => {
+    const response = await request.post('/api/tokens', {
+      data: { username: member.username, password: member.password, name: `api-test-${Date.now()}`, expiresInDays: 1 },
+    });
+    if (response.status() !== 201) {
+      throw new Error(`Token creation failed: POST /api/tokens returned ${response.status()}`);
+    }
+    const { token } = await response.json();
+    await use(token);
+    await request.post('/api/tokens/current', {
+      data: { intent: 'revoke' },
+      headers: { Authorization: `Bearer ${token}` },
     });
   },
 });
