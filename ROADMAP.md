@@ -16,7 +16,7 @@ Start here. Every tool has what it needs, or needs one standard library.
 |---|---|---|---|---|---|---|
 | 1 | Browser end-to-end flows | ✅ | ✅ | ✅ | The base for everything else. The page objects and sign-in helpers written here are reused by most later rows | Yes |
 | 2 | Cross-browser coverage | ✅ | ✅ | ✅ | Already in place: CI runs every framework in Chromium and Firefox, so each new test gets it for free | Yes |
-| 3 | Mobile (responsive layout) | ✅ Window size or Chrome emulation | ✅ `cy.viewport` | ✅ Device emulation | Rerun the end-to-end flows at phone sizes. Real devices aren't needed for layout checks | No |
+| 3 | Mobile (responsive layout) | ✅ BiDi `setViewport` | ✅ `cy.viewport` | ✅ Device emulation | Rerun the end-to-end flows on a phone and a tablet. Real devices aren't needed for layout checks | Yes |
 | 4 | HTTP API tests | 📦 REST Assured | ✅ `cy.request` | ✅ `request` fixture | Fast, stable tests. Selenium needs one dependency. Covers both ways to sign in: the session cookie, whose POSTs send a matching `Origin` header, and a bearer access token | Yes |
 
 ## 2. More work, or not possible in one framework

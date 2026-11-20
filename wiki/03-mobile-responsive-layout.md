@@ -51,13 +51,13 @@ The Galaxy Tab S9 in landscape is exactly 1024px wide, so MOB-01 also checks the
 
 | Phase | Change | Framework | Done |
 |---|---|---|---|
-| 1 | MOB-01 and MOB-02 | Playwright | No |
-| 2 | MOB-01 and MOB-02 | Cypress | No |
-| 3 | MOB-01 and MOB-02 | Selenium | No |
-| 4 | MOB-03 | Playwright | No |
-| 5 | MOB-03 | Cypress | No |
-| 6 | MOB-03 | Selenium | No |
-| 7 | MOB-04 | Playwright | No |
-| 8 | MOB-04 | Cypress | No |
-| 9 | MOB-04 | Selenium | No |
-| 10 | Mark row 3 Done in ROADMAP.md | Repository | No |
+| 1 | MOB-01 and MOB-02 | Playwright | Yes |
+| 2 | MOB-01 and MOB-02 | Cypress | Yes |
+| 3 | MOB-01 and MOB-02 | Selenium | Yes |
+| 4 | MOB-03 | Playwright | Yes |
+| 5 | MOB-03 | Cypress | Yes |
+| 6 | MOB-03 | Selenium | Yes |
+| 7 | MOB-04 | Playwright | Yes |
+| 8 | MOB-04 | Cypress | Yes |
+| 9 | MOB-04 | Selenium | Yes |
+| 10 | Mark row 3 Done in ROADMAP.md | Repository | Yes |
