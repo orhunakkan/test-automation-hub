@@ -17,6 +17,7 @@
     <assertj.version>3.27.7</assertj.version>
     <rest-assured.version>6.3.0</rest-assured.version>
     <jackson.version>3.3.0</jackson.version>
+    <axe-core.version>4.14.0</axe-core.version>
     <surefire.version>3.6.1</surefire.version>
     <spotless.version>3.11.0</spotless.version>
     <checkstyle-plugin.version>3.6.0</checkstyle-plugin.version>
@@ -64,6 +65,18 @@
       <artifactId>jackson-databind</artifactId>
       <version>${jackson.version}</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.deque.html.axe-core</groupId>
+      <artifactId>selenium</artifactId>
+      <version>${axe-core.version}</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>io.github.bonigarcia</groupId>
+          <artifactId>webdrivermanager</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 

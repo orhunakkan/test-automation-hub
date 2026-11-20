@@ -7,6 +7,7 @@ Instructions for AI coding agents working in `selenium-java-framework/`. Humans 
 - Selenium 4.53.0 (Java bindings), Java 25, Maven through the wrapper (`./mvnw`)
 - JUnit Jupiter 6.1.3 (via `junit-bom`), AssertJ 3.27.7
 - REST Assured 6.3.0, for the HTTP API tests, with Jackson 3.3.0 (`jackson-databind`) so request bodies can be Java maps
+- axe-core for Selenium 4.14.0 (`com.deque.html.axe-core:selenium`), for the accessibility tests
 - Spotless 3.11.0 with google-java-format
 - Checkstyle 14.4.0 (maven-checkstyle-plugin 3.6.0), for the locator rule only
 - Application under test: Folio at `https://dev.agenticlibrary.app`
@@ -46,9 +47,10 @@ Before you finish a change, run `./mvnw spotless:apply` and the tests you touche
 
 ```
 src/test/java/com/testautomationhub/selenium/
-├── support/   # Config (settings lookup), DriverFactory (creates the WebDriver), Device (mobile viewports), BrowserTest (base class: a fresh driver per test), SignIn (API sign-in), AccessToken (bearer tokens for API tests)
+├── support/   # Config (settings lookup), DriverFactory (creates the WebDriver), Device (mobile viewports), BrowserTest (base class: a fresh driver per test), SignIn (API sign-in), AccessToken (bearer tokens for API tests), Accessibility (axe scans)
 ├── pages/     # page objects
 └── tests/
+    ├── a11y/  # accessibility tests
     ├── api/   # HTTP API tests, with REST Assured and no browser
     └── e2e/   # browser end-to-end tests
 src/test/resources/config.properties   # default settings
@@ -62,6 +64,14 @@ Follows Selenium's [Generating application state](https://www.selenium.dev/docum
 - **A fresh session per test,** with no cached sessions, following Selenium's [Avoid sharing state](https://www.selenium.dev/documentation/test_practices/encouraged/avoid_sharing_state/) and one new driver per test. A test that signs out ends only its own session.
 - Only the sign-in tests (`SignInTest`) go through the form, because the form is what they test.
 - **Access tokens (API tests only):** Folio also accepts `Authorization: Bearer <token>` on `/api/me`, the `/api/tokens` endpoints and the shelves endpoints. `AccessToken.create("member")` (`support/AccessToken.java`) gets one from `POST /api/tokens` with REST Assured (a `Map` body of `username`, `password`, `name`, `expiresInDays: 1`; no `Origin` needed) and throws if that fails. A test sends it with `.auth().oauth2(token)` and calls `AccessToken.revoke(token)` in `@AfterEach`. Only `TokensTest` calls `POST /api/tokens` itself, because creating is what it tests. Build JSON bodies that hold credentials from a `Map`, never by joining strings, so any character in a password is escaped. An account can have only 10 live tokens, so a token that isn't revoked holds a slot until it expires.
+
+## Accessibility
+
+The accessibility tests (`tests/a11y/AccessibilityTest`) follow [wiki/05-accessibility.md](../wiki/05-accessibility.md).
+
+- **`Accessibility.violations(driver)`** (`support/Accessibility.java`): waits until the page has hydrated and no opacity or transform animation is running, then runs Deque's `AxeBuilder` with the tags `wcag2a`, `wcag2aa`, `wcag21a` and `wcag21aa`. It returns one line per violation, `id (impact): help at <first five targets>`, and throws if axe itself fails, so a broken scan can't pass as clean. It doesn't assert: the test asserts the list is empty, after checking the expected screen is showing.
+- **Dependencies:** the axe library depends on `selenium-java` 4.13.0 and WebDriverManager. The pom's own `selenium-java` wins, and WebDriverManager is excluded in `pom.xml`, following the rule below that Selenium Manager handles drivers.
+- Never exclude a rule or an element to make a scan pass. A violation is a Folio bug: report it.
 
 ## Configuration and credentials
 

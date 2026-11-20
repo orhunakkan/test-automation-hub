@@ -23,6 +23,10 @@ public class SignInPage {
     driver.findElement(SUBMIT).click();
   }
 
+  public WebElement submit() {
+    return driver.findElement(SUBMIT);
+  }
+
   public WebElement error() {
     return driver.findElement(ERROR);
   }
