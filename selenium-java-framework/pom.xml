@@ -104,6 +104,7 @@
         </configuration>
         <executions>
           <execution>
+            <?m2e ignore?>
             <id>check-locators</id>
             <phase>validate</phase>
             <goals>
