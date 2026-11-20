@@ -1,14 +1,46 @@
 describe('shelves', () => {
+  const headers = { Origin: new URL(Cypress.config('baseUrl')).origin };
+  let shelfId;
+
+  afterEach(() => {
+    if (shelfId) {
+      cy.request({ method: 'POST', url: `/account/shelves/${shelfId}`, body: { intent: 'delete' }, headers, failOnStatusCode: false });
+      shelfId = undefined;
+    }
+  });
+
   it('creating a shelf signed out is refused', () => {
     cy.request({
       method: 'POST',
       url: '/account/shelves/new',
       body: { name: `api-test-${Date.now()}` },
-      headers: { Origin: new URL(Cypress.config('baseUrl')).origin },
+      headers,
       failOnStatusCode: false,
     }).then((response) => {
       expect(response.status).to.eq(401);
       expect(response.body).to.deep.eq({ error: 'signed_out' });
     });
+  });
+
+  it('shelf lifecycle', () => {
+    const name = `api-test-${Date.now()}`;
+    cy.signIn('member');
+    cy.request({ method: 'POST', url: '/account/shelves/new', body: { name }, headers })
+      .then((response) => {
+        expect(response.status).to.eq(201);
+        expect(response.body.shelf.name).to.eq(name);
+        shelfId = response.body.shelf.id;
+        return cy.request({ method: 'POST', url: `/account/shelves/${shelfId}`, body: { name: `${name}-renamed` }, headers });
+      })
+      .then((response) => {
+        expect(response.status).to.eq(200);
+        expect(response.body.shelf.name).to.eq(`${name}-renamed`);
+        return cy.request({ method: 'POST', url: `/account/shelves/${shelfId}`, body: { intent: 'delete' }, headers });
+      })
+      .then((response) => {
+        expect(response.status).to.eq(200);
+        expect(response.body).to.deep.eq({ deleted: true });
+        shelfId = undefined;
+      });
   });
 });
