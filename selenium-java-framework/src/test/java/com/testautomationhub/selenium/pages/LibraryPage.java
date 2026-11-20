@@ -20,6 +20,8 @@ public class LibraryPage {
   private static final By ACCOUNT_MENU = By.cssSelector("[data-testid=account-menu]");
   private static final By SIGN_OUT = By.cssSelector("[data-testid=account-sign-out]");
   private static final By SIGN_IN_LINK = By.cssSelector("[data-testid=sign-in-link]");
+  private static final By MENU_OPEN = By.cssSelector("[data-testid=nav-menu-open]");
+  private static final By MENU_CLOSE = By.cssSelector("[data-testid=nav-menu-close]");
 
   private final WebDriver driver;
 
@@ -68,6 +70,22 @@ public class LibraryPage {
 
   public WebElement signInLink() {
     return displayed(SIGN_IN_LINK);
+  }
+
+  public WebElement menuButton() {
+    return driver.findElement(MENU_OPEN);
+  }
+
+  public WebElement menuClose() {
+    return driver.findElement(MENU_CLOSE);
+  }
+
+  public List<WebElement> navLinks(String key) {
+    return driver.findElements(By.cssSelector("[data-testid=nav-link][data-key=" + key + "]"));
+  }
+
+  public void openMenu() {
+    menuButton().click();
   }
 
   public void signOut() {

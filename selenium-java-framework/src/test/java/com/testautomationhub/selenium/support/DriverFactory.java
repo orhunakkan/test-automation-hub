@@ -17,6 +17,7 @@ public final class DriverFactory {
     return switch (browser) {
       case "chromium" -> {
         ChromeOptions options = new ChromeOptions();
+        options.setCapability("webSocketUrl", true);
         if (headless) options.addArguments("--headless=new");
         if (noSandbox) options.addArguments("--no-sandbox");
         yield new ChromeDriver(options);

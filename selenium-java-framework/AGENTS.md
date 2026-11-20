@@ -46,7 +46,7 @@ Before you finish a change, run `./mvnw spotless:apply` and the tests you touche
 
 ```
 src/test/java/com/testautomationhub/selenium/
-├── support/   # Config (settings lookup), DriverFactory (creates the WebDriver), BrowserTest (base class: a fresh driver per test), SignIn (API sign-in), AccessToken (bearer tokens for API tests)
+├── support/   # Config (settings lookup), DriverFactory (creates the WebDriver), Device (mobile viewports), BrowserTest (base class: a fresh driver per test), SignIn (API sign-in), AccessToken (bearer tokens for API tests)
 ├── pages/     # page objects
 └── tests/
     ├── api/   # HTTP API tests, with REST Assured and no browser
@@ -77,6 +77,12 @@ Settings: `baseUrl`, `browserName` (`chromium` or `firefox`), `headless`, `noSan
 ## Browsers
 
 Only Chromium and Firefox. Don't add Edge, Safari or WebKit. `chromium` uses `ChromeDriver`; Selenium Manager finds the installed Chrome or downloads Chrome for Testing.
+
+`DriverFactory` turns on WebDriver BiDi for Chromium (the `webSocketUrl` capability), for the mobile tests.
+
+## Mobile devices
+
+The mobile layout tests (`MobileTest`) set only the viewports of the Pixel 10 Pro (427 × 876), the Galaxy Tab S9 (640 × 1024) and the Galaxy Tab S9 in landscape (1024 × 640), listed in `support/Device.java`. They run in Chromium only: `@EnabledIf` turns the class off unless `browserName` is `chromium`, so Firefox runs skip it without starting a browser. `Device.resize(driver)` sets the viewport with BiDi's `browsingContext.setViewport`, which sets the page's size exactly; resizing the window sets its outer size, frame included. Don't use Chrome's mobile emulation instead: it's set when the driver starts, before a test picks its device. Don't add other devices or sizes.
 
 ## Selenium documentation
 
