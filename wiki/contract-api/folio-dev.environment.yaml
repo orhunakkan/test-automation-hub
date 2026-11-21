@@ -1,0 +1,18 @@
+name: Folio dev
+values:
+  - key: baseUrl
+    value: 'https://dev.agenticlibrary.app'
+    enabled: true
+    type: default
+  - key: memberUsername
+    value: ''
+    enabled: true
+    type: default
+  - key: memberPassword
+    value: ''
+    enabled: true
+    type: secret
+  - key: sendSkippedRequests
+    value: 'false'
+    enabled: true
+    type: default
